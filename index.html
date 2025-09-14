@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -6,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard E-Katalog Sumber Daya Air</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Segoe UI', sans-serif; }
         .leaflet-container { height: 100%; width: 100%; border-radius: 0.5rem; }
@@ -16,92 +16,189 @@
         .info-panel h4 { margin: 0 0 5px 0; color: #333; font-weight: 600; }
         .legend { line-height: 18px; color: #555; }
         .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.8; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .modal-container { z-index: 1000; }
+        .toast-notification { z-index: 1100; transition: opacity 0.5s, transform 0.5s; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
+
     <div class="flex h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-lg flex flex-col">
             <div class="p-4 border-b">
                 <h1 class="text-xl font-bold text-gray-700">E-Katalog SDA</h1>
-                <p class="text-xs text-gray-500">Dashboard Monitoring v.1.3.5</p>
+                <p class="text-xs text-gray-500">Dashboard Monitoring v1.3.6</p>
             </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg bg-gray-200">
+                    <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="ml-3">Dashboard</span>
+                </a>
+                <a href="#" onclick="openModal('marketSoundingModal')" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100">
+                    <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span class="ml-3">Input Market Sounding</span>
+                </a>
+                 <a href="#" onclick="openModal('historyModal')" class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100">
+                    <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="ml-3">Histori Market Sounding</span>
+                </a>
+            </nav>
         </aside>
 
         <!-- Main Content -->
         <main class="flex-1 p-6 overflow-y-auto">
             <header class="mb-6">
                 <h2 class="text-2xl font-semibold text-gray-700">Dashboard Analitik Produk</h2>
+                <div class="mt-2 p-4 bg-white rounded-lg shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Analisis Market Sounding</h3>
+                    <div class="flex flex-col md:flex-row gap-4 items-center">
+                        <div class="flex-1"><label for="comparisonDate" class="block text-sm font-medium text-gray-700">Pilih Event Market Sounding</label><select id="comparisonDate" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"><option value="latest">Tampilkan Data Terkini</option></select></div>
+                        <div class="flex-1"><label for="comparisonDay" class="block text-sm font-medium text-gray-700">Bandingkan dengan (hari setelahnya)</label><input type="number" id="comparisonDay" value="30" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"></div>
+                        <button onclick="runComparison()" class="w-full md:w-auto mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Jalankan Analisis</button>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-white rounded-lg shadow">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div><label for="filterProvinsi" class="block text-sm font-medium text-gray-700">Provinsi</label><select id="filterProvinsi" class="mt-1 block w-full rounded-md"><option value="all">Semua Provinsi</option></select></div>
+                        <div><label for="filterKategori1" class="block text-sm font-medium text-gray-700">Kategori 1</label><select id="filterKategori1" class="mt-1 block w-full rounded-md"><option value="all">Semua Kategori 1</option></select></div>
+                        <div><label for="filterKategori2" class="block text-sm font-medium text-gray-700">Kategori 2</label><select id="filterKategori2" class="mt-1 block w-full rounded-md"><option value="all">Semua Kategori 2</option></select></div>
+                        <div><label for="filterProduk" class="block text-sm font-medium text-gray-700">Nama Produk</label><select id="filterProduk" class="mt-1 block w-full rounded-md"><option value="all">Semua Produk</option></select></div>
+                    </div>
+                </div>
             </header>
             <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"></div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div class="lg:col-span-2 bg-white p-4 rounded-lg shadow h-[60vh] overflow-hidden">
-                    <h3 class="font-semibold mb-2">Persebaran Produk di Indonesia</h3>
-                    <div id="map" class="h-full w-full"></div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow h-[60vh]">
-                    <h3 class="font-semibold mb-2">Produk per Kategori</h3>
-                    <canvas id="categoryChart"></canvas>
-                </div>
+                <div class="lg:col-span-2 bg-white p-4 rounded-lg shadow h-[60vh] overflow-hidden"><h3 class="font-semibold mb-2">Persebaran Produk di Indonesia</h3><div id="map" class="h-full w-full"></div></div>
+                <div class="bg-white p-4 rounded-lg shadow h-[60vh]"><h3 class="font-semibold mb-2">Produk per Kategori</h3><canvas id="categoryChart"></canvas></div>
             </div>
-            <div class="bg-white p-4 rounded-lg shadow">
-                <h3 class="font-semibold mb-2">Detail Produk</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Produk</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perusahaan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="filteredTableBody" class="bg-white divide-y divide-gray-200"></tbody>
-                    </table>
-                </div>
-            </div>
+            <div class="bg-white p-4 rounded-lg shadow"><h3 class="font-semibold mb-2">Detail Produk</h3><div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Produk</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perusahaan</th></tr></thead><tbody id="filteredTableBody" class="bg-white divide-y divide-gray-200"></tbody></table></div></div>
         </main>
     </div>
 
+    <!-- Modals -->
+    <div id="marketSoundingModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"><h2 class="text-xl font-bold mb-4">Catat Market Sounding</h2><form id="marketSoundingForm"><div class="mb-4"><label for="balai" class="block text-sm">Balai</label><input type="text" id="balai" class="mt-1 block w-full" required></div><div class="mb-4"><label for="provinsi" class="block text-sm">Wilayah</label><select id="provinsi" class="mt-1 block w-full" required></select></div><div class="mb-4"><label for="paket_pekerjaan" class="block text-sm">Paket Pekerjaan</label><input type="text" id="paket_pekerjaan" class="mt-1 block w-full" required></div><div class="mb-4"><label for="tanggal" class="block text-sm">Tanggal</label><input type="date" id="tanggal" class="mt-1 block w-full" required></div><div class="flex justify-end space-x-2"><button type="button" onclick="closeModal('marketSoundingModal')" class="px-4 py-2 bg-gray-200 rounded-md">Batal</button><button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">Simpan</button></div></form></div></div>
+    <div id="historyModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-5xl p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Histori Market Sounding</h2><button type="button" onclick="closeModal('historyModal')" class="text-gray-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="overflow-y-auto max-h-[70vh]"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs">Tanggal</th><th class="px-6 py-3 text-left text-xs">Balai</th><th class="px-6 py-3 text-left text-xs">Wilayah</th><th class="px-6 py-3 text-left text-xs">Paket Pekerjaan</th><th class="px-6 py-3 text-left text-xs">Perubahan</th><th class="px-6 py-3 text-left text-xs">Aksi</th></tr></thead><tbody id="historyTableBody" class="bg-white divide-y"></tbody></table></div></div></div>
+    <div id="analysisResultModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Hasil Perbandingan</h2><button type="button" onclick="closeModal('analysisResultModal')" class="text-gray-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div id="comparison-content" class="overflow-y-auto max-h-[70vh]"></div></div></div>
+    <div id="deleteConfirmationModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 text-center"><svg class="mx-auto mb-4 text-gray-400 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg><h3 class="mb-5 text-lg">Anda yakin ingin menghapus event ini?</h3><p id="deleteEventDetails" class="mb-5 text-sm text-gray-500"></p><button id="confirmDeleteBtn" class="text-white bg-red-600 hover:bg-red-800 rounded-lg px-5 py-2.5 mr-2">Ya, Hapus</button><button onclick="closeModal('deleteConfirmationModal')" class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border px-5 py-2.5">Batal</button></div></div>
+    <div id="toast-notification" class="toast-notification fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg opacity-0 transform translate-y-[-20px]"></div>
+
+    </body>
+    
     <script>
-        let latestProducts = [
-            {provinsi: "RIAU", kategori_1: "Kategori A", kategori_2: "Sub A1", nama_produk: "Produk 1", perusahaan: "PT ABC"},
-            {provinsi: "JAWA BARAT", kategori_1: "Kategori A", kategori_2: "Sub A2", nama_produk: "Produk 2", perusahaan: "PT DEF"},
-            {provinsi: "Riau", kategori_1: "Kategori B", kategori_2: "Sub B1", nama_produk: "Produk 3", perusahaan: "PT GHI"}
-        ];
-        let activeDataSource = latestProducts;
+        // --- GLOBAL VARIABLES & CONFIGURATION ---
+        let marketSoundingLog = [];
+        let dataSnapshots = {};
+        let latestProducts = [];
+        let activeDataSource = [];
+        
+        const indonesiaGeoJson = {
+            "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": { "name": "ACEH" }, "geometry": { "type": "Point", "coordinates": [96.92, 4.22] } }, { "type": "Feature", "properties": { "name": "SUMATERA UTARA" }, "geometry": { "type": "Point", "coordinates": [99.5, 2.5] } }, { "type": "Feature", "properties": { "name": "SUMATERA BARAT" }, "geometry": { "type": "Point", "coordinates": [100.47, -0.74] } }, { "type": "Feature", "properties": { "name": "RIAU" }, "geometry": { "type": "Point", "coordinates": [101.69, 0.51] } }, { "type": "Feature", "properties": { "name": "JAMBI" }, "geometry": { "type": "Point", "coordinates": [102.73, -1.61] } }, { "type": "Feature", "properties": { "name": "SUMATERA SELATAN" }, "geometry": { "type": "Point", "coordinates": [104.09, -3.32] } }, { "type": "Feature", "properties": { "name": "BENGKULU" }, "geometry": { "type": "Point", "coordinates": [102.34, -3.8] } }, { "type": "Feature", "properties": { "name": "LAMPUNG" }, "geometry": { "type": "Point", "coordinates": [105.02, -4.89] } }, { "type": "Feature", "properties": { "name": "KEPULAUAN BANGKA BELITUNG" }, "geometry": { "type": "Point", "coordinates": [106.51, -2.74] } }, { "type": "Feature", "properties": { "name": "KEPULAUAN RIAU" }, "geometry": { "type": "Point", "coordinates": [104.51, 0.92] } }, { "type": "Feature", "properties": { "name": "DKI JAKARTA" }, "geometry": { "type": "Point", "coordinates": [106.82, -6.21] } }, { "type": "Feature", "properties": { "name": "JAWA BARAT" }, "geometry": { "type": "Point", "coordinates": [107.62, -6.92] } }, { "type": "Feature", "properties": { "name": "JAWA TENGAH" }, "geometry": { "type": "Point", "coordinates": [110.2, -7.26] } }, { "type": "Feature", "properties": { "name": "DAERAH ISTIMEWA YOGYAKARTA" }, "geometry": { "type": "Point", "coordinates": [110.45, -7.87] } }, { "type": "Feature", "properties": { "name": "JAWA TIMUR" }, "geometry": { "type": "Point", "coordinates": [112.73, -7.54] } }, { "type": "Feature", "properties": { "name": "BANTEN" }, "geometry": { "type": "Point", "coordinates": [106.15, -6.44] } }, { "type": "Feature", "properties": { "name": "BALI" }, "geometry": { "type": "Point", "coordinates": [115.19, -8.41] } }, { "type": "Feature", "properties": { "name": "NUSA TENGGARA BARAT" }, "geometry": { "type": "Point", "coordinates": [117.56, -8.65] } }, { "type": "Feature", "properties": { "name": "NUSA TENGGARA TIMUR" }, "geometry": { "type": "Point", "coordinates": [121.08, -8.68] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN BARAT" }, "geometry": { "type": "Point", "coordinates": [111.12, -0.02] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN TENGAH" }, "geometry": { "type": "Point", "coordinates": [113.28, -1.69] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN SELATAN" }, "geometry": { "type": "Point", "coordinates": [115.45, -3.09] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN TIMUR" }, "geometry": { "type": "Point", "coordinates": [116.42, 0.58] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN UTARA" }, "geometry": { "type": "Point", "coordinates": [116.47, 3.08] } }, { "type": "Feature", "properties": { "name": "SULAWESI UTARA" }, "geometry": { "type": "Point", "coordinates": [124.57, 1.34] } }, { "type": "Feature", "properties": { "name": "SULAWESI TENGAH" }, "geometry": { "type": "Point", "coordinates": [121.2, -1.4] } }, { "type": "Feature", "properties": { "name": "SULAWESI SELATAN" }, "geometry": { "type": "Point", "coordinates": [120.16, -4.14] } }, { "type": "Feature", "properties": { "name": "SULAWESI TENGGARA" }, "geometry": { "type": "Point", "coordinates": [122.07, -4.14] } }, { "type": "Feature", "properties": { "name": "GORONTALO" }, "geometry": { "type": "Point", "coordinates": [122.45, 0.7] } }, { "type": "Feature", "properties": { "name": "SULAWESI BARAT" }, "geometry": { "type": "Point", "coordinates": [119.35, -2.6] } }, { "type": "Feature", "properties": { "name": "MALUKU" }, "geometry": { "type": "Point", "coordinates": [129.41, -3.24] } }, { "type": "Feature", "properties": { "name": "MALUKU UTARA" }, "geometry": { "type": "Point", "coordinates": [127.53, 0.78] } }, { "type": "Feature", "properties": { "name": "PAPUA BARAT" }, "geometry": { "type": "Point", "coordinates": [132.96, -1.34] } }, { "type": "Feature", "properties": { "name": "PAPUA" }, "geometry": { "type": "Point", "coordinates": [138.8, -4.5] } }, { "type": "Feature", "properties": { "name": "PAPUA TENGAH" }, "geometry": { "type": "Point", "coordinates": [136.2, -4] } }, { "type": "Feature", "properties": { "name": "PAPUA PEGUNUNGAN" }, "geometry": { "type": "Point", "coordinates": [139.5, -4.3] } }, { "type": "Feature", "properties": { "name": "PAPUA SELATAN" }, "geometry": { "type": "Point", "coordinates": [139.5, -7] } }, { "type": "Feature", "properties": { "name": "PAPUA BARAT DAYA" }, "geometry": { "type": "Point", "coordinates": [131.5, -1] } }]
+        };
+        const ALL_PROVINCES = indonesiaGeoJson.features.map(f => f.properties.name).sort();
+        let map, geojsonLayer, infoPanel = L.control(), legend = L.control({position: 'bottomright'});
+        infoPanel.onAdd = function (map) { this._div = L.DomUtil.create('div', 'info-panel'); this.update(); return this._div; };
+        infoPanel.update = function (props) { this._div.innerHTML = '<h4>Produk per Provinsi</h4>' + (props ? `<b>${props.name}</b><br />${props.density || 0} produk` : 'Arahkan mouse'); };
+        legend.onAdd = function (map) { let div = L.DomUtil.create('div', 'info-panel legend'), g = [0, 1, 2, 5, 10]; for (let i = 0; i < g.length; i++) { div.innerHTML += `<i style="background:${getColor(g[i] + 1)}"></i> ${g[i]}${(g[i + 1] ? '&ndash;' + g[i + 1] + '<br>' : '+')}`; } return div; };
+        let categoryChart;
+
+        // --- CORE FUNCTIONS ---
+        function initMap() { if (map) map.remove(); map = L.map('map').setView([-2.5, 118], 5); L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map); infoPanel.addTo(map); legend.addTo(map); }
+        function initChart() { const canvas = document.getElementById('categoryChart'); if (!canvas) { console.error("Elemen canvas 'categoryChart' tidak ditemukan!"); return; } const ctx = canvas.getContext('2d'); if(categoryChart) categoryChart.destroy(); categoryChart = new Chart(ctx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Jumlah Produk', data: [], backgroundColor: 'rgba(59, 130, 246, 0.7)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } }); }
+        function getColor(d) { return d > 10 ? '#800026' : d > 5 ? '#BD0026' : d > 2 ? '#E31A1C' : d > 1 ? '#FC4E2A' : d > 0 ? '#FED976' : '#d1d5db'; }
 
         function updateDashboard(productData) {
-            document.getElementById('stats-cards').innerHTML =
-                `<div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm text-gray-500">Total Produk</h4><p class="text-3xl font-bold">${productData.length}</p></div>`;
+            const total = productData.length; const cats = [...new Set(productData.map(p => p.kategori_1))].length;
+            document.getElementById('stats-cards').innerHTML = `<div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm text-gray-500">Total Produk</h4><p class="text-3xl font-bold">${total}</p></div><div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm text-gray-500">Kategori Unik</h4><p class="text-3xl font-bold">${cats}</p></div>`;
+            if (map) { const counts = productData.reduce((a, p) => { a[p.provinsi] = (a[p.provinsi] || 0) + 1; return a; }, {}); if (geojsonLayer) map.removeLayer(geojsonLayer); geojsonLayer = L.geoJson(indonesiaGeoJson, { style: f => { const c = counts[f.properties.name] || 0; return { fillColor: getColor(c), weight: 1, color: 'white', fillOpacity: 0.7, radius: 5 + c * 2 }; }, onEachFeature: (f, l) => { l.on({ mouseover: e => { e.target.setStyle({ weight: 3 }); infoPanel.update(e.target.feature.properties); }, mouseout: e => geojsonLayer.resetStyle(e.target) }); if (f.geometry.type === 'Point') { const c = counts[f.properties.name] || 0; l.setRadius(5 + c * 2); l.bindPopup(`<b>${f.properties.name}</b><br>${c} produk`); } }, pointToLayer: (f, l) => L.circleMarker(l) }).addTo(map); geojsonLayer.eachLayer(l => { l.feature.properties.density = counts[l.feature.properties.name] || 0; }); map.invalidateSize(); }
+            if (categoryChart) { const catCounts = productData.reduce((a, p) => { a[p.kategori_1] = (a[p.kategori_1] || 0) + 1; return a; }, {}); categoryChart.data.labels = Object.keys(catCounts); categoryChart.data.datasets[0].data = Object.values(catCounts); categoryChart.update(); }
         }
 
-        function updateFilteredTable(productData) {
-            const t = document.getElementById('filteredTableBody');
-            t.innerHTML = '';
-            if (productData.length === 0) {
-                t.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`;
-                return;
+        function updateFilteredTable(productData) { const t = document.getElementById('filteredTableBody'); t.innerHTML = ''; if (productData.length === 0) { t.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`; return; } productData.forEach(p => { t.innerHTML += `<tr class="hover:bg-gray-50"><td class="px-6 py-4 text-sm">${p.nama_produk}</td><td class="px-6 py-4 text-sm text-gray-500">${p.perusahaan}</td></tr>`; }); }
+        
+        function runComparison() { const date = document.getElementById('comparisonDate').value; if (date === 'latest') return; const days = parseInt(document.getElementById('comparisonDay').value); const dataBefore = dataSnapshots[date]; if (!dataBefore) { alert(`Snapshot untuk tanggal ${date} tidak ditemukan.`); return; } const dateAfter = new Date(date); dateAfter.setDate(dateAfter.getDate() + days); const dataAfter = latestProducts.filter(p => new Date(p.last_update) <= dateAfter); const log = marketSoundingLog.find(l => l.tanggal === date); const beforeIds = new Set(dataBefore.map(p => `${p.nama_produk}::${p.perusahaan}`)); const newProducts = dataAfter.filter(p => !beforeIds.has(`${p.nama_produk}::${p.perusahaan}`)); const removedProducts = dataBefore.filter(p => !new Set(dataAfter.map(p => `${p.nama_produk}::${p.perusahaan}`)).has(`${p.nama_produk}::${p.perusahaan}`)); document.getElementById('comparison-content').innerHTML = `<div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg mb-4"><p class="font-semibold text-blue-800">Analisis: ${log.balai}</p><p class="text-sm">Paket: "${log.paket_pekerjaan}"</p></div><p class="mb-2">Perbandingan <strong>${date}</strong> vs. <strong>${days} hari setelahnya</strong>.</p><div class="grid grid-cols-3 gap-4"><div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold">Awal</h4><p class="text-2xl">${dataBefore.length}</p></div><div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold">Akhir</h4><p class="text-2xl">${dataAfter.length}</p></div><div class="p-4 rounded-lg ${dataAfter.length >= dataBefore.length ? 'bg-green-100' : 'bg-red-100'}"><h4 class="font-semibold">Perubahan</h4><p class="text-2xl">${dataAfter.length - dataBefore.length > 0 ? '+' : ''}${dataAfter.length - dataBefore.length}</p></div></div><div class="mt-4"><h4 class="font-semibold">Produk Baru:</h4><ul class="list-disc pl-5 text-sm text-green-700">${newProducts.length > 0 ? newProducts.map(p => `<li>${p.nama_produk} <span class="text-gray-500">- ${p.perusahaan}</span></li>`).join('') : '<li>Tidak ada.</li>'}</ul></div><div class="mt-2"><h4 class="font-semibold">Produk Dihapus/Diganti:</h4><ul class="list-disc pl-5 text-sm text-red-700">${removedProducts.length > 0 ? removedProducts.map(p => `<li>${p.nama_produk} <span class="text-gray-500">- ${p.perusahaan}</span></li>`).join('') : '<li>Tidak ada.</li>'}</ul></div>`; openModal('analysisResultModal'); }
+
+        const filters = { provinsi: document.getElementById('filterProvinsi'), kategori1: document.getElementById('filterKategori1'), kategori2: document.getElementById('filterKategori2'), produk: document.getElementById('filterProduk') };
+        function populateSelect(el, opt, def) { const cur = el.value; el.innerHTML = `<option value="all">${def}</option>`; [...new Set(opt)].sort().forEach(o => el.innerHTML += `<option value="${o}">${o}</option>`); el.value = cur && opt.includes(cur) ? cur : 'all'; }
+        function populateFilters(data, reset = false) { if (reset) Object.values(filters).forEach(s => s.value = 'all'); let fData = [...data]; populateSelect(filters.provinsi, ALL_PROVINCES, 'Semua Provinsi'); if (filters.provinsi.value !== 'all') fData = fData.filter(p => p.provinsi === filters.provinsi.value); populateSelect(filters.kategori1, fData.map(p => p.kategori_1), 'Semua Kategori 1'); if (filters.kategori1.value !== 'all') fData = fData.filter(p => p.kategori_1 === filters.kategori1.value); populateSelect(filters.kategori2, fData.map(p => p.kategori_2).filter(Boolean), 'Semua Kategori 2'); if (filters.kategori2.value !== 'all') fData = fData.filter(p => p.kategori_2 === filters.kategori2.value); populateSelect(filters.produk, fData.map(p => p.nama_produk), 'Semua Produk'); }
+        function applyAndRenderFilters() { console.log("DEBUG: Apply filter dipanggil"); let data = [...activeDataSource]; if (filters.provinsi.value !== 'all') data = data.filter(p => p.provinsi === filters.provinsi.value); if (filters.kategori1.value !== 'all') data = data.filter(p => p.kategori_1 === filters.kategori1.value); if (filters.kategori2.value !== 'all') data = data.filter(p => p.kategori_2 === filters.kategori2.value); if (filters.produk.value !== 'all') data = data.filter(p => p.nama_produk === filters.produk.value); console.log("DEBUG: Data setelah filter:", data); updateDashboard(data); updateFilteredTable(data); }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function showToast(message) { const t = document.getElementById('toast-notification'); t.textContent = message; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; }, 3000); }
+        function promptDeleteEvent(date) { const log = marketSoundingLog.find(l => l.tanggal === date); if (!log) return; document.getElementById('deleteEventDetails').innerHTML = `<strong>${log.balai}</strong> - ${log.paket_pekerjaan} <br> (${log.tanggal})`; document.getElementById('confirmDeleteBtn').dataset.deleteId = date; openModal('deleteConfirmationModal'); }
+        
+        function deleteEvent() { const dateToDelete = document.getElementById('confirmDeleteBtn').dataset.deleteId; alert(`Simulasi: Menghapus event tanggal ${dateToDelete}. Fungsi ini perlu dihubungkan ke Apps Script untuk menghapus baris di sheet.`); marketSoundingLog = marketSoundingLog.filter(l => l.tanggal !== dateToDelete); delete dataSnapshots[dateToDelete]; populateHistoryTable(); populateComparisonDropdown(); closeModal('deleteConfirmationModal'); showToast('Event berhasil dihapus (simulasi).'); }
+
+        function populateHistoryTable() { const t = document.getElementById('historyTableBody'); t.innerHTML = ''; marketSoundingLog.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).forEach(log => { t.innerHTML += `<tr><td class="px-6 py-4 text-sm">${log.tanggal}</td><td class="px-6 py-4 text-sm">${log.balai}</td><td class="px-6 py-4 text-sm">${log.wilayah}</td><td class="px-6 py-4 text-sm">${log.paket_pekerjaan}</td><td class="px-6 py-4 text-sm font-medium ${log.totalPerubahan > 0 ? 'text-green-600' : ''}">${log.totalPerubahan > 0 ? `+${log.totalPerubahan}` : '0'}</td><td class="px-6 py-4"><button onclick="promptDeleteEvent('${log.tanggal}')" class="text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td></tr>`; }); }
+        function populateComparisonDropdown() { const s = document.getElementById('comparisonDate'); s.innerHTML = '<option value="latest">Tampilkan Data Terkini</option>'; marketSoundingLog.forEach(log => { s.innerHTML += `<option value="${log.tanggal}">${log.balai}: ${log.paket_pekerjaan}</option>`; }); }
+        
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_URL = "https://script.google.com/macros/s/AKfycbxGIlUNHm_9qm11g0sFnW8_N67mdLNsjRDWDn8uewmyJ6pX1HYWLVoiVR-ifkCxM4PL/exec";
+            document.body.innerHTML += `<div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center"><div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div><p class="mt-4 text-gray-600">Menyambungkan ke Spreadsheet...</p></div>`;
+
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                console.log("DEBUG: Data API mentah:", data);
+
+                if (data.error) { throw new Error(`API Error: ${data.message}`); }
+
+                window.marketSoundingLog = data.marketSoundingLog || [];
+                window.latestProducts = data.latestProducts || [];
+                window.dataSnapshots = data.dataSnapshots || {};
+                window.activeDataSource = window.latestProducts;
+
+                console.log("DEBUG: Produk terbaru:", window.latestProducts);
+                console.log("DEBUG: Market Sounding Log:", window.marketSoundingLog);
+                console.log("DEBUG: Snapshots:", window.dataSnapshots);
+                
+                initMap();
+                initChart(); 
+                
+                populateComparisonDropdown();
+                
+                const provSelect = document.getElementById('provinsi');
+                ALL_PROVINCES.forEach(p => provSelect.innerHTML += `<option value="${p}">${p}</option>`);
+                
+                populateHistoryTable();
+                
+                document.getElementById('marketSoundingForm').addEventListener('submit', function(e) { e.preventDefault(); alert('Untuk menambah data, silakan input langsung di Google Sheet.'); closeModal('marketSoundingModal'); });
+                document.getElementById('confirmDeleteBtn').addEventListener('click', deleteEvent);
+                document.getElementById('comparisonDate').addEventListener('change', e => { if (e.target.value === 'latest') { window.activeDataSource = window.latestProducts; populateFilters(window.activeDataSource, true); applyAndRenderFilters(); }});
+                Object.values(filters).forEach(s => s.addEventListener('change', () => { populateFilters(window.activeDataSource); applyAndRenderFilters(); }));
+                
+                populateFilters(window.activeDataSource, true);
+                applyAndRenderFilters();
+
+            } catch (error) {
+                console.error("Gagal memuat data dari Google Sheets:", error);
+                document.getElementById('stats-cards').innerHTML = `<div class="col-span-full bg-red-100 text-red-700 p-4 rounded-lg">Gagal terhubung ke sumber data. ${error.message}</div>`;
+            } finally {
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.remove();
             }
-            productData.forEach(p => {
-                t.innerHTML += `<tr><td class="px-6 py-4 text-sm">${p.nama_produk}</td><td class="px-6 py-4 text-sm">${p.perusahaan}</td></tr>`;
-            });
-        }
-
-        function applyAndRenderFilters() {
-            console.log("DEBUG: Apply filter dipanggil");
-            let data = [...activeDataSource];
-            // Contoh filter provinsi ke "RIAU" case-insensitive
-            let selectedProv = "RIAU"; 
-            if (selectedProv !== "all") {
-                data = data.filter(p => (p.provinsi || "").toLowerCase() === selectedProv.toLowerCase());
-            }
-            console.log("DEBUG: Data setelah filter:", data);
-            updateDashboard(data);
-            updateFilteredTable(data);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            applyAndRenderFilters();
         });
     </script>
-</body>
 </html>
+```
+
+---
+
+### Langkah Final (Ini yang Terakhir, Saya Jamin)
+
+1.  **Simpan** file `index.html` yang baru.
+2.  Buka **Anaconda Prompt** di folder proyek Anda.
+3.  Jalankan tiga perintah ini:
+    ```bash
+    git add .
+    git commit -m "Final fix: Moved script to end of body"
+    git push
+    
+
