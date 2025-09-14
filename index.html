@@ -30,7 +30,7 @@
         <aside class="w-64 bg-white shadow-lg flex flex-col">
             <div class="p-4 border-b">
                 <h1 class="text-xl font-bold text-gray-700">E-Katalog SDA</h1>
-                <p class="text-xs text-gray-500">Dashboard Monitoring v1.3.8</p>
+                <p class="text-xs text-gray-500">Dashboard Monitoring v1.3.9</p>
             </div>
             <nav class="flex-1 p-4 space-y-2">
                 <a href="#" class="flex items-center p-2 text-base rounded-lg bg-gray-200"><svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span class="ml-3">Dashboard</span></a>
@@ -70,7 +70,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="marketSoundingModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"><h2 class="text-xl font-bold mb-4">Catat Market Sounding</h2><form id="marketSoundingForm"><div class="mb-4"><label for="balai" class="block text-sm">Balai</label><input type="text" id="balai" class="mt-1 block w-full" required></div><div class="mb-4"><label for="provinsi" class="block text-sm">Wilayah</label><select id="provinsi" class="mt-1 block w-full" required></select></div><div class="mb-4"><label for="paket_pekerjaan" class="block text-sm">Paket Pekerjaan</label><input type="text" id="paket_pekerjaan" class="mt-1 block w-full" required></div><div class="mb-4"><label for="tanggal" class="block text-sm">Tanggal</label><input type="date" id="tanggal" class="mt-1 block w-full" required></div><div class="flex justify-end space-x-2"><button type="button" onclick="closeModal('marketSoundingModal')" class="px-4 py-2 bg-gray-200 rounded-md">Batal</button><button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">Simpan</button></div></form></div></div>
+    <div id="marketSoundingModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"><h2 class="text-xl font-bold mb-4">Catat Market Sounding</h2><form id="marketSoundingForm"><div class="mb-4"><label for="balai" class="block text-sm">Balai</label><input type="text" id="balai" class="mt-1 block w-full" required></div><div class="mb-4"><label for="provinsi" class="block text-sm">Wilayah</label><select id="provinsi" class="mt-1 block w-full" required></select></div><div class="mb-4"><label for="paket_pekerjaan" class="block text-sm">Paket Pekerjaan</label><input type="text" id="paket_pekerjaan" class="mt-1 block w-full" required></div><div class="mb-4"><label for="tanggal" class="block text-sm">Tanggal</label><input type="date" id="tanggal" class="mt-1 block w-full" required></div><div class="flex justify-end space-x-2"><button type="button" onclick="closeModal('marketSoundingModal')" class="px-4 py-2 bg-gray-200 rounded-md">Batal</button><button type="submit" id="submit-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md">Simpan</button></div></form></div></div>
     <div id="historyModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-5xl p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Histori Market Sounding</h2><button type="button" onclick="closeModal('historyModal')" class="text-gray-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="overflow-y-auto max-h-[70vh]"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs uppercase">Tanggal</th><th class="px-6 py-3 text-left text-xs uppercase">Balai</th><th class="px-6 py-3 text-left text-xs uppercase">Wilayah</th><th class="px-6 py-3 text-left text-xs uppercase">Paket Pekerjaan</th><th class="px-6 py-3 text-left text-xs uppercase">Perubahan</th><th class="px-6 py-3 text-left text-xs uppercase">Aksi</th></tr></thead><tbody id="historyTableBody" class="bg-white divide-y"></tbody></table></div></div></div>
     <div id="analysisResultModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Hasil Perbandingan</h2><button type="button" onclick="closeModal('analysisResultModal')" class="text-gray-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div id="comparison-content" class="overflow-y-auto max-h-[70vh]"></div></div></div>
     <div id="deleteConfirmationModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 text-center"><svg class="mx-auto mb-4 text-gray-400 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg><h3 class="mb-5 text-lg">Anda yakin ingin menghapus event ini?</h3><p id="deleteEventDetails" class="mb-5 text-sm text-gray-500"></p><button id="confirmDeleteBtn" class="text-white bg-red-600 hover:bg-red-800 rounded-lg px-5 py-2.5 mr-2">Ya, Hapus</button><button onclick="closeModal('deleteConfirmationModal')" class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border px-5 py-2.5">Batal</button></div></div>
@@ -80,6 +80,7 @@
     
     <script>
         // --- GLOBAL VARIABLES & CONFIGURATION ---
+        const API_URL = "https://script.google.com/macros/s/AKfycbxGIlUNHm_9qm11g0sFnW8_N67mdLNsjRDWDn8uewmyJ6pX1HYWLVoiVR-ifkCxM4PL/exec";
         let marketSoundingLog = [];
         let dataSnapshots = {};
         let latestProducts = [];
@@ -122,13 +123,13 @@
         function showToast(message) { const t = document.getElementById('toast-notification'); t.textContent = message; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; }, 3000); }
         function promptDeleteEvent(date) { const log = marketSoundingLog.find(l => l.tanggal === date); if (!log) return; document.getElementById('deleteEventDetails').innerHTML = `<strong>${log.balai}</strong> - ${log.paket_pekerjaan} <br> (${log.tanggal})`; document.getElementById('confirmDeleteBtn').dataset.deleteId = date; openModal('deleteConfirmationModal'); }
         
-        function deleteEvent() { const dateToDelete = document.getElementById('confirmDeleteBtn').dataset.deleteId; alert(`Simulasi: Menghapus event tanggal ${dateToDelete}. Fungsi ini perlu dihubungkan ke Apps Script untuk menghapus baris di sheet.`); marketSoundingLog = marketSoundingLog.filter(l => l.tanggal !== dateToDelete); delete dataSnapshots[dateToDelete]; populateHistoryTable(); populateComparisonDropdown(); closeModal('deleteConfirmationModal'); showToast('Event berhasil dihapus (simulasi).'); }
+        function deleteEvent() { const dateToDelete = document.getElementById('confirmDeleteBtn').dataset.deleteId; alert(`Simulasi: Menghapus event tanggal ${dateToDelete}. Fungsi ini perlu dihubungkan ke Apps Script untuk menghapus baris di sheet.`); marketSoundingLog = marketSoundingLog.filter(l => l.tanggal !== dateToDelete); delete dataSnapshots[dateToDelete]; populateHistoryTable(marketSoundingLog); populateComparisonDropdown(marketSoundingLog); closeModal('deleteConfirmationModal'); showToast('Event berhasil dihapus (simulasi).'); }
 
-        function populateHistoryTable(logs) { const tBody = document.getElementById('historyTableBody'); tBody.innerHTML = ''; logs.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).forEach(log => { const row = tBody.insertRow(); row.innerHTML = `<td class="px-6 py-4 text-sm">${log.tanggal}</td><td class="px-6 py-4 text-sm">${log.balai}</td><td class="px-6 py-4 text-sm">${log.wilayah}</td><td class="px-6 py-4 text-sm">${log.paket_pekerjaan}</td><td class="px-6 py-4 text-sm font-medium ${log.totalPerubahan > 0 ? 'text-green-600' : ''}">${log.totalPerubahan > 0 ? `+${log.totalPerubahan}` : '0'}</td><td class="px-6 py-4"><button onclick="promptDeleteEvent('${log.tanggal}')" class="text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>`; }); }
-        function populateComparisonDropdown(logs) { const s = document.getElementById('comparisonDate'); s.innerHTML = '<option value="latest">Tampilkan Data Terkini</option>'; logs.forEach(log => { const op = document.createElement('option'); op.value = log.tanggal; op.textContent = `${log.balai}: ${log.paket_pekerjaan}`; s.appendChild(op); }); }
+        function populateHistoryTable(logs) { const tBody = document.getElementById('historyTableBody'); tBody.innerHTML = ''; if(!logs) return; logs.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).forEach(log => { const row = tBody.insertRow(); row.innerHTML = `<td class="px-6 py-4 text-sm">${log.tanggal}</td><td class="px-6 py-4 text-sm">${log.balai}</td><td class="px-6 py-4 text-sm">${log.wilayah}</td><td class="px-6 py-4 text-sm">${log.paket_pekerjaan}</td><td class="px-6 py-4 text-sm font-medium ${log.totalPerubahan > 0 ? 'text-green-600' : ''}">${log.totalPerubahan > 0 ? `+${log.totalPerubahan}` : '0'}</td><td class="px-6 py-4"><button onclick="promptDeleteEvent('${log.tanggal}')" class="text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>`; }); }
+        function populateComparisonDropdown(logs) { const s = document.getElementById('comparisonDate'); s.innerHTML = '<option value="latest">Tampilkan Data Terkini</option>'; if(!logs) return; logs.forEach(log => { const op = document.createElement('option'); op.value = log.tanggal; op.textContent = `${log.balai}: ${log.paket_pekerjaan}`; s.appendChild(op); }); }
         
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', async () => {
+        // --- INI ADALAH FUNGSI UTAMA YANG MEMULAI SEMUANYA ---
+        async function main() {
             const API_URL = "https://script.google.com/macros/s/AKfycbxGIlUNHm_9qm11g0sFnW8_N67mdLNsjRDWDn8uewmyJ6pX1HYWLVoiVR-ifkCxM4PL/exec";
             document.body.insertAdjacentHTML('beforeend', `<div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center"><div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div><p class="mt-4 text-gray-600">Menyambungkan ke Spreadsheet...</p></div>`);
 
@@ -136,7 +137,6 @@
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-
                 if (data.error) throw new Error(`API Error: ${data.message}`);
 
                 // Assign data to global variables
@@ -144,8 +144,8 @@
                 latestProducts = data.latestProducts || [];
                 dataSnapshots = data.dataSnapshots || {};
                 activeDataSource = latestProducts;
-
-                // Initialize UI components that don't depend on each other first
+                
+                // Initialize all UI components
                 initMap();
                 initChart(); 
                 
@@ -156,7 +156,7 @@
                 populateHistoryTable(marketSoundingLog);
                 
                 // Set up event listeners
-                document.getElementById('marketSoundingForm').addEventListener('submit', function(e) { e.preventDefault(); alert('Untuk menambah data, silakan input langsung di Google Sheet.'); closeModal('marketSoundingModal'); });
+                document.getElementById('marketSoundingForm').addEventListener('submit', handleFormSubmit);
                 document.getElementById('confirmDeleteBtn').addEventListener('click', deleteEvent);
                 document.getElementById('comparisonDate').addEventListener('change', e => { if (e.target.value === 'latest') { activeDataSource = latestProducts; populateFilters(activeDataSource, true); applyAndRenderFilters(); }});
                 Object.values(filters).forEach(s => s.addEventListener('change', () => { populateFilters(activeDataSource); applyAndRenderFilters(); }));
@@ -172,6 +172,65 @@
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) overlay.remove();
             }
-        });
+        }
+
+        // --- INI ADALAH FUNGSI BARU UNTUK MENGIRIM DATA ---
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan...';
+
+            const formData = {
+                balai: document.getElementById('balai').value,
+                wilayah: document.getElementById('provinsi').value,
+                paket_pekerjaan: document.getElementById('paket_pekerjaan').value,
+                tanggal: document.getElementById('tanggal').value,
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Penting untuk Apps Script
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                // Karena mode no-cors, kita tidak bisa membaca response. Asumsikan sukses.
+                showToast('Data berhasil dikirim!');
+                closeModal('marketSoundingModal');
+                document.getElementById('marketSoundingForm').reset();
+                // Tunggu sebentar agar sheet sempat update, lalu refresh data
+                setTimeout(() => {
+                    location.reload(); // Cara paling mudah untuk refresh
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error saat mengirim data:', error);
+                alert('Gagal mengirim data. Silakan coba lagi.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Simpan';
+            }
+        }
+        
+        // --- Memulai aplikasi ---
+        document.addEventListener('DOMContentLoaded', main);
     </script>
 </html>
+```
+
+---
+
+### Langkah Final
+
+1.  **Simpan** file `index.html` yang baru.
+2.  Buka **Anaconda Prompt**.
+3.  Jalankan:
+    ```bash
+    git add .
+    git commit -m "Final version with robust JS rendering"
+    git push
+    
+
