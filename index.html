@@ -30,7 +30,7 @@
         <aside class="w-64 bg-white shadow-lg flex flex-col">
             <div class="p-4 border-b">
                 <h1 class="text-xl font-bold text-gray-700">E-Katalog SDA</h1>
-                <p class="text-xs text-gray-500">Dashboard Monitoring v.1.3.7</p>
+                <p class="text-xs text-gray-500">Dashboard Monitoring v1.3.8</p>
             </div>
             <nav class="flex-1 p-4 space-y-2">
                 <a href="#" class="flex items-center p-2 text-base rounded-lg bg-gray-200"><svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span class="ml-3">Dashboard</span></a>
@@ -112,7 +112,7 @@
         function runComparison() { const date = document.getElementById('comparisonDate').value; if (date === 'latest') return; const days = parseInt(document.getElementById('comparisonDay').value); const dataBefore = dataSnapshots[date]; if (!dataBefore) { alert(`Snapshot untuk tanggal ${date} tidak ditemukan.`); return; } const dateAfter = new Date(date); dateAfter.setDate(dateAfter.getDate() + days); const dataAfter = latestProducts.filter(p => new Date(p.last_update) <= dateAfter); const log = marketSoundingLog.find(l => l.tanggal === date); const beforeIds = new Set(dataBefore.map(p => `${p.nama_produk}::${p.perusahaan}`)); const newProducts = dataAfter.filter(p => !beforeIds.has(`${p.nama_produk}::${p.perusahaan}`)); const removedProducts = dataBefore.filter(p => !new Set(dataAfter.map(p => `${p.nama_produk}::${p.perusahaan}`)).has(`${p.nama_produk}::${p.perusahaan}`)); document.getElementById('comparison-content').innerHTML = `<div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg mb-4"><p class="font-semibold text-blue-800">Analisis: ${log.balai}</p><p class="text-sm">Paket: "${log.paket_pekerjaan}"</p></div><p class="mb-2">Perbandingan <strong>${date}</strong> vs. <strong>${days} hari setelahnya</strong>.</p><div class="grid grid-cols-3 gap-4"><div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold">Awal</h4><p class="text-2xl">${dataBefore.length}</p></div><div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold">Akhir</h4><p class="text-2xl">${dataAfter.length}</p></div><div class="p-4 rounded-lg ${dataAfter.length >= dataBefore.length ? 'bg-green-100' : 'bg-red-100'}"><h4 class="font-semibold">Perubahan</h4><p class="text-2xl">${dataAfter.length - dataBefore.length > 0 ? '+' : ''}${dataAfter.length - dataBefore.length}</p></div></div><div class="mt-4"><h4 class="font-semibold">Produk Baru:</h4><ul class="list-disc pl-5 text-sm text-green-700">${newProducts.length > 0 ? newProducts.map(p => `<li>${p.nama_produk} <span class="text-gray-500">- ${p.perusahaan}</span></li>`).join('') : '<li>Tidak ada.</li>'}</ul></div><div class="mt-2"><h4 class="font-semibold">Produk Dihapus/Diganti:</h4><ul class="list-disc pl-5 text-sm text-red-700">${removedProducts.length > 0 ? removedProducts.map(p => `<li>${p.nama_produk} <span class="text-gray-500">- ${p.perusahaan}</span></li>`).join('') : '<li>Tidak ada.</li>'}</ul></div>`; openModal('analysisResultModal'); }
 
         const filters = { provinsi: document.getElementById('filterProvinsi'), kategori1: document.getElementById('filterKategori1'), kategori2: document.getElementById('filterKategori2'), produk: document.getElementById('filterProduk') };
-        function populateSelect(el, opt, def) { const cur = el.value; el.innerHTML = `<option value="all">${def}</option>`; [...new Set(opt)].sort().forEach(o => el.innerHTML += `<option value="${o}">${o}</option>`); el.value = cur && opt.includes(cur) ? cur : 'all'; }
+        function populateSelect(el, opt, def) { const cur = el.value; el.innerHTML = `<option value="all">${def}</option>`; [...new Set(opt)].sort().forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; el.appendChild(op); }); if (el.querySelector(`option[value="${cur}"]`)) { el.value = cur; } else { el.value = 'all'; } }
         function populateFilters(data, reset = false) { if (reset) Object.values(filters).forEach(s => s.value = 'all'); let fData = [...data]; populateSelect(filters.provinsi, ALL_PROVINCES, 'Semua Provinsi'); if (filters.provinsi.value !== 'all') fData = fData.filter(p => p.provinsi === filters.provinsi.value); populateSelect(filters.kategori1, fData.map(p => p.kategori_1), 'Semua Kategori 1'); if (filters.kategori1.value !== 'all') fData = fData.filter(p => p.kategori_1 === filters.kategori1.value); populateSelect(filters.kategori2, fData.map(p => p.kategori_2).filter(Boolean), 'Semua Kategori 2'); if (filters.kategori2.value !== 'all') fData = fData.filter(p => p.kategori_2 === filters.kategori2.value); populateSelect(filters.produk, fData.map(p => p.nama_produk), 'Semua Produk'); }
         function applyAndRenderFilters() { let data = [...activeDataSource]; if (filters.provinsi.value !== 'all') data = data.filter(p => p.provinsi === filters.provinsi.value); if (filters.kategori1.value !== 'all') data = data.filter(p => p.kategori_1 === filters.kategori1.value); if (filters.kategori2.value !== 'all') data = data.filter(p => p.kategori_2 === filters.kategori2.value); if (filters.produk.value !== 'all') data = data.filter(p => p.nama_produk === filters.produk.value); updateDashboard(data); updateFilteredTable(data); }
 
@@ -124,51 +124,49 @@
         
         function deleteEvent() { const dateToDelete = document.getElementById('confirmDeleteBtn').dataset.deleteId; alert(`Simulasi: Menghapus event tanggal ${dateToDelete}. Fungsi ini perlu dihubungkan ke Apps Script untuk menghapus baris di sheet.`); marketSoundingLog = marketSoundingLog.filter(l => l.tanggal !== dateToDelete); delete dataSnapshots[dateToDelete]; populateHistoryTable(); populateComparisonDropdown(); closeModal('deleteConfirmationModal'); showToast('Event berhasil dihapus (simulasi).'); }
 
-        function populateHistoryTable() { const tBody = document.getElementById('historyTableBody'); tBody.innerHTML = ''; marketSoundingLog.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).forEach(log => { const row = tBody.insertRow(); row.innerHTML = `<td class="px-6 py-4 text-sm">${log.tanggal}</td><td class="px-6 py-4 text-sm">${log.balai}</td><td class="px-6 py-4 text-sm">${log.wilayah}</td><td class="px-6 py-4 text-sm">${log.paket_pekerjaan}</td><td class="px-6 py-4 text-sm font-medium ${log.totalPerubahan > 0 ? 'text-green-600' : ''}">${log.totalPerubahan > 0 ? `+${log.totalPerubahan}` : '0'}</td><td class="px-6 py-4"><button onclick="promptDeleteEvent('${log.tanggal}')" class="text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>`; }); }
-        function populateComparisonDropdown() { const s = document.getElementById('comparisonDate'); s.innerHTML = '<option value="latest">Tampilkan Data Terkini</option>'; marketSoundingLog.forEach(log => { s.innerHTML += `<option value="${log.tanggal}">${log.balai}: ${log.paket_pekerjaan}</option>`; }); }
+        function populateHistoryTable(logs) { const tBody = document.getElementById('historyTableBody'); tBody.innerHTML = ''; logs.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).forEach(log => { const row = tBody.insertRow(); row.innerHTML = `<td class="px-6 py-4 text-sm">${log.tanggal}</td><td class="px-6 py-4 text-sm">${log.balai}</td><td class="px-6 py-4 text-sm">${log.wilayah}</td><td class="px-6 py-4 text-sm">${log.paket_pekerjaan}</td><td class="px-6 py-4 text-sm font-medium ${log.totalPerubahan > 0 ? 'text-green-600' : ''}">${log.totalPerubahan > 0 ? `+${log.totalPerubahan}` : '0'}</td><td class="px-6 py-4"><button onclick="promptDeleteEvent('${log.tanggal}')" class="text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>`; }); }
+        function populateComparisonDropdown(logs) { const s = document.getElementById('comparisonDate'); s.innerHTML = '<option value="latest">Tampilkan Data Terkini</option>'; logs.forEach(log => { const op = document.createElement('option'); op.value = log.tanggal; op.textContent = `${log.balai}: ${log.paket_pekerjaan}`; s.appendChild(op); }); }
         
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
             const API_URL = "https://script.google.com/macros/s/AKfycbxGIlUNHm_9qm11g0sFnW8_N67mdLNsjRDWDn8uewmyJ6pX1HYWLVoiVR-ifkCxM4PL/exec";
-            document.body.innerHTML += `<div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center"><div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div><p class="mt-4 text-gray-600">Menyambungkan ke Spreadsheet...</p></div>`;
+            document.body.insertAdjacentHTML('beforeend', `<div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center"><div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div><p class="mt-4 text-gray-600">Menyambungkan ke Spreadsheet...</p></div>`);
 
             try {
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                console.log("DEBUG: Data API mentah:", data);
 
-                if (data.error) { throw new Error(`API Error: ${data.message}`); }
+                if (data.error) throw new Error(`API Error: ${data.message}`);
 
-                window.marketSoundingLog = data.marketSoundingLog || [];
-                window.latestProducts = data.latestProducts || [];
-                window.dataSnapshots = data.dataSnapshots || {};
-                window.activeDataSource = window.latestProducts;
+                // Assign data to global variables
+                marketSoundingLog = data.marketSoundingLog || [];
+                latestProducts = data.latestProducts || [];
+                dataSnapshots = data.dataSnapshots || {};
+                activeDataSource = latestProducts;
 
-                console.log("DEBUG: Produk terbaru:", window.latestProducts);
-                console.log("DEBUG: Market Sounding Log:", window.marketSoundingLog);
-                console.log("DEBUG: Snapshots:", window.dataSnapshots);
-                
+                // Initialize UI components that don't depend on each other first
                 initMap();
                 initChart(); 
                 
-                populateComparisonDropdown();
-                
+                // Populate UI with the data received
+                populateComparisonDropdown(marketSoundingLog);
                 const provSelect = document.getElementById('provinsi');
-                ALL_PROVINCES.forEach(p => provSelect.innerHTML += `<option value="${p}">${p}</option>`);
+                ALL_PROVINCES.forEach(p => { const op = document.createElement('option'); op.value = p; op.textContent = p; provSelect.appendChild(op); });
+                populateHistoryTable(marketSoundingLog);
                 
-                populateHistoryTable();
-                
+                // Set up event listeners
                 document.getElementById('marketSoundingForm').addEventListener('submit', function(e) { e.preventDefault(); alert('Untuk menambah data, silakan input langsung di Google Sheet.'); closeModal('marketSoundingModal'); });
                 document.getElementById('confirmDeleteBtn').addEventListener('click', deleteEvent);
-                document.getElementById('comparisonDate').addEventListener('change', e => { if (e.target.value === 'latest') { window.activeDataSource = window.latestProducts; populateFilters(window.activeDataSource, true); applyAndRenderFilters(); }});
-                Object.values(filters).forEach(s => s.addEventListener('change', () => { populateFilters(window.activeDataSource); applyAndRenderFilters(); }));
+                document.getElementById('comparisonDate').addEventListener('change', e => { if (e.target.value === 'latest') { activeDataSource = latestProducts; populateFilters(activeDataSource, true); applyAndRenderFilters(); }});
+                Object.values(filters).forEach(s => s.addEventListener('change', () => { populateFilters(activeDataSource); applyAndRenderFilters(); }));
                 
-                populateFilters(window.activeDataSource, true);
+                // Initial render of the dashboard
+                populateFilters(activeDataSource, true);
                 applyAndRenderFilters();
 
             } catch (error) {
-                console.error("Gagal memuat data dari Google Sheets:", error);
+                console.error("Gagal memuat data:", error);
                 document.getElementById('stats-cards').innerHTML = `<div class="col-span-full bg-red-100 text-red-700 p-4 rounded-lg">Gagal terhubung ke sumber data. ${error.message}</div>`;
             } finally {
                 const overlay = document.getElementById('loading-overlay');
@@ -177,18 +175,3 @@
         });
     </script>
 </html>
-```
-
----
-
-### Langkah Final
-
-1.  **Simpan** file `index.html` yang baru.
-2.  Buka **Anaconda Prompt**, arahkan ke folder proyek.
-3.  Jalankan:
-    ```bash
-    git add .
-    git commit -m "Final version with robust rendering"
-    git push
-    
-
