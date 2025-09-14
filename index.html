@@ -59,6 +59,10 @@
         .modal-container {
             z-index: 1000;
         }
+        .toast-notification {
+            z-index: 1100;
+            transition: opacity 0.5s, transform 0.5s;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -93,7 +97,6 @@
                 <!-- Analysis Section -->
                 <div class="mt-2 p-4 bg-white rounded-lg shadow">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Analisis Market Sounding</h3>
-                    <!-- Comparison Controls -->
                     <div class="flex flex-col md:flex-row gap-4 items-center">
                         <div class="flex-1">
                             <label for="comparisonDate" class="block text-sm font-medium text-gray-700">Pilih Event Market Sounding</label>
@@ -140,9 +143,7 @@
             </header>
 
             <!-- Stats Cards -->
-            <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <!-- Cards will be injected by JS -->
-            </div>
+            <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"></div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <!-- Map -->
@@ -168,39 +169,33 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perusahaan</th>
                             </tr>
                         </thead>
-                        <tbody id="filteredTableBody" class="bg-white divide-y divide-gray-200">
-                            <!-- Data will be populated by JS -->
-                        </tbody>
+                        <tbody id="filteredTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
-
         </main>
     </div>
 
     <!-- Modals -->
-    <!-- Market Sounding Input Modal -->
     <div id="marketSoundingModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center" onclick="closeModalOnOutsideClick(event)">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6" id="modal-content-ms">
             <h2 class="text-xl font-bold mb-4">Catat Market Sounding</h2>
             <form id="marketSoundingForm">
                 <div class="mb-4">
                     <label for="balai" class="block text-sm font-medium text-gray-700">Balai yang Mengajukan</label>
-                    <input type="text" id="balai" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <input type="text" id="balai" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
                 <div class="mb-4">
                     <label for="provinsi" class="block text-sm font-medium text-gray-700">Wilayah (Provinsi)</label>
-                    <select id="provinsi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                       <!-- Options will be populated by JS -->
-                    </select>
+                    <select id="provinsi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required></select>
                 </div>
                  <div class="mb-4">
                     <label for="paket_pekerjaan" class="block text-sm font-medium text-gray-700">Paket Pekerjaan</label>
-                    <input type="text" id="paket_pekerjaan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <input type="text" id="paket_pekerjaan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
                 <div class="mb-4">
                     <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal Market Sounding</label>
-                    <input type="date" id="tanggal" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <input type="date" id="tanggal" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="closeModal('marketSoundingModal')" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
@@ -210,13 +205,12 @@
         </div>
     </div>
 
-    <!-- History Modal -->
     <div id="historyModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center" onclick="closeModalOnOutsideClick(event)">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6" id="modal-content-hist">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl p-6" id="modal-content-hist">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold">Histori Market Sounding</h2>
                  <button type="button" onclick="closeModal('historyModal')" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                  </button>
             </div>
             <div class="overflow-y-auto max-h-[70vh]">
@@ -227,35 +221,54 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balai</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wilayah</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paket Pekerjaan</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Perubahan Produk</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perubahan</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="historyTableBody" class="bg-white divide-y divide-gray-200">
-                        <!-- Data will be populated by JS -->
-                    </tbody>
+                    <tbody id="historyTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Analysis Result Modal -->
     <div id="analysisResultModal" class="modal-container fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center" onclick="closeModalOnOutsideClick(event)">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6" id="modal-content-analysis">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold">Hasil Perbandingan Market Sounding</h2>
                  <button type="button" onclick="closeModal('analysisResultModal')" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                  </button>
             </div>
-            <div id="comparison-content" class="overflow-y-auto max-h-[70vh]">
-                <!-- Analysis content will be injected by JS -->
-            </div>
+            <div id="comparison-content" class="overflow-y-auto max-h-[70vh]"></div>
         </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmationModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center" onclick="closeModalOnOutsideClick(event)">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 text-center" id="modal-content-delete">
+            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <h3 class="mb-5 text-lg font-normal text-gray-500">Apakah Anda yakin ingin menghapus event ini?</h3>
+            <p id="deleteEventDetails" class="mb-5 text-sm text-gray-500"></p>
+            <button id="confirmDeleteBtn" class="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                Ya, Hapus
+            </button>
+            <button onclick="closeModal('deleteConfirmationModal')" class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900">
+                Tidak, Batal
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="toast-notification fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 transform translate-y-[-20px]">
+        Event berhasil dihapus.
     </div>
 
     <script>
         // --- MOCK DATA ---
-        const NAMA_PROVINSI = ['ACEH', 'SUMATERA UTARA', 'SUMATERA BARAT', 'RIAU', 'JAMBI', 'SUMATERA SELATAN', 'BENGKULU', 'LAMPUNG', 'KEPULAUAN BANGKA BELITUNG', 'KEPULAUAN RIAU', 'DKI JAKARTA', 'JAWA BARAT', 'JAWA TENGAH', 'DAERAH ISTIMEWA YOGYAKARTA', 'JAWA TIMUR', 'BANTEN', 'BALI', 'NUSA TENGGARA BARAT', 'NUSA TENGGARA TIMUR', 'KALIMANTAN BARAT', 'KALIMANTAN TENGAH', 'KALIMANTAN SELATAN', 'KALIMANTAN TIMUR', 'KALIMANTAN UTARA', 'SULAWESI UTARA', 'SULAWESI TENGAH', 'SULAWESI SELATAN', 'SULAWESI TENGGARA', 'GORONTALO', 'SULAWESI BARAT', 'MALUKU', 'MALUKU UTARA', 'PAPUA BARAT', 'PAPUA', 'PAPUA TENGAH', 'PAPUA PEGUNUNGAN', 'PAPUA SELATAN', 'PAPUA BARAT DAYA'];
+        let marketSoundingLog = [
+            { tanggal: '2025-06-01', balai: 'BBWS Citarum', wilayah: 'JAWA BARAT', paket_pekerjaan: 'Pembangunan Bendungan Ciawi', totalPerubahan: 2 },
+            { tanggal: '2025-08-15', balai: 'BBWS Brantas', wilayah: 'JAWA TIMUR', paket_pekerjaan: 'Modernisasi Irigasi Brantas', totalPerubahan: 3 }
+        ];
 
         const dataSnapshots = {
             '2025-06-01': [
@@ -266,16 +279,8 @@
             '2025-08-15': [
                 { kategori_1: 'Konstruksi', kategori_2: 'Bendungan', nama_produk: 'Pintu Air Tipe A', harga: 120000000, provinsi: 'JAWA BARAT', perusahaan: 'PT Karya Baja', last_update: '2025-05-20' },
                 { kategori_1: 'Konstruksi', kategori_2: 'Bendungan', nama_produk: 'Pintu Air Tipe B (Baru)', harga: 150000000, provinsi: 'JAWA BARAT', perusahaan: 'PT Karya Baja', last_update: '2025-08-10' },
-                { kategori_1: 'Peralatan', kategori_2: 'Pompa', nama_produk: 'Pompa Submersible 5HP', harga: 72000000, provinsi: 'JAWA TIMUR', perusahaan: 'PT Pompa Jaya', last_update: '2025-08-01' },
-                { kategori_1: 'Konstruksi', kategori_2: 'Irigasi', nama_produk: 'Pipa HDPE 12 inch', harga: 350000, provinsi: 'SULAWESI SELATAN', perusahaan: 'PT Pipa Kuat', last_update: '2025-05-22' },
-                { kategori_1: 'Jasa', kategori_2: 'Konsultansi', nama_produk: 'Studi Kelayakan Bendungan', harga: 500000000, provinsi: 'DKI JAKARTA', perusahaan: 'CV Cipta Konsul', last_update: '2025-07-30' },
             ]
         };
-
-        let marketSoundingLog = [
-            { tanggal: '2025-06-01', balai: 'BBWS Citarum', wilayah: 'JAWA BARAT', paket_pekerjaan: 'Pembangunan Bendungan Ciawi', totalPerubahan: 2 },
-            { tanggal: '2025-08-15', balai: 'BBWS Brantas', wilayah: 'JAWA TIMUR', paket_pekerjaan: 'Modernisasi Irigasi Brantas', totalPerubahan: 3 }
-        ];
 
         let latestProducts = [
             ...dataSnapshots['2025-08-15'],
@@ -283,275 +288,150 @@
             { kategori_1: 'Konstruksi', kategori_2: 'Irigasi', nama_produk: 'Box Tersier', harga: 1200000, provinsi: 'JAWA TENGAH', perusahaan: 'PT Beton Presisi', last_update: '2025-09-05' },
         ];
 
-        let activeDataSource = latestProducts; // Data source that is currently being displayed
+        let activeDataSource = latestProducts;
 
-        // --- GEOJSON DATA ---
+        // --- GEOJSON DATA (COMPLETE) ---
         const indonesiaGeoJson = {
             "type": "FeatureCollection",
             "features": [
                 { "type": "Feature", "properties": { "name": "ACEH" }, "geometry": { "type": "Point", "coordinates": [96.92, 4.22] } },
                 { "type": "Feature", "properties": { "name": "SUMATERA UTARA" }, "geometry": { "type": "Point", "coordinates": [99.5, 2.5] } },
-                { "type": "Feature", "properties": { "name": "JAWA BARAT" }, "geometry": { "type": "Point", "coordinates": [107.6, -6.9] } },
-                { "type": "Feature", "properties": { "name": "JAWA TIMUR" }, "geometry": { "type": "Point", "coordinates": [112.7, -7.5] } },
-                { "type": "Feature", "properties": { "name": "SULAWESI SELATAN" }, "geometry": { "type": "Point", "coordinates": [120, -4] } },
-                { "type": "Feature", "properties": { "name": "KALIMANTAN TIMUR" }, "geometry": { "type": "Point", "coordinates": [116.4, 0.5] } },
-                { "type": "Feature", "properties": { "name": "DKI JAKARTA" }, "geometry": { "type": "Point", "coordinates": [106.8, -6.2] } },
-                 { "type": "Feature", "properties": { "name": "JAWA TENGAH" }, "geometry": { "type": "Point", "coordinates": [110.2, -7.2] } },
-                 { "type": "Feature", "properties": { "name": "PAPUA" }, "geometry": { "type": "Point", "coordinates": [138, -4.5] } }
+                { "type": "Feature", "properties": { "name": "SUMATERA BARAT" }, "geometry": { "type": "Point", "coordinates": [100.47, -0.74] } },
+                { "type": "Feature", "properties": { "name": "RIAU" }, "geometry": { "type": "Point", "coordinates": [101.69, 0.51] } },
+                { "type": "Feature", "properties": { "name": "JAMBI" }, "geometry": { "type": "Point", "coordinates": [102.73, -1.61] } },
+                { "type": "Feature", "properties": { "name": "SUMATERA SELATAN" }, "geometry": { "type": "Point", "coordinates": [104.09, -3.32] } },
+                { "type": "Feature", "properties": { "name": "BENGKULU" }, "geometry": { "type": "Point", "coordinates": [102.34, -3.8] } },
+                { "type": "Feature", "properties": { "name": "LAMPUNG" }, "geometry": { "type": "Point", "coordinates": [105.02, -4.89] } },
+                { "type": "Feature", "properties": { "name": "KEPULAUAN BANGKA BELITUNG" }, "geometry": { "type": "Point", "coordinates": [106.51, -2.74] } },
+                { "type": "Feature", "properties": { "name": "KEPULAUAN RIAU" }, "geometry": { "type": "Point", "coordinates": [104.51, 0.92] } },
+                { "type": "Feature", "properties": { "name": "DKI JAKARTA" }, "geometry": { "type": "Point", "coordinates": [106.82, -6.21] } },
+                { "type": "Feature", "properties": { "name": "JAWA BARAT" }, "geometry": { "type": "Point", "coordinates": [107.62, -6.92] } },
+                { "type": "Feature", "properties": { "name": "JAWA TENGAH" }, "geometry": { "type": "Point", "coordinates": [110.2, -7.26] } },
+                { "type": "Feature", "properties": { "name": "DAERAH ISTIMEWA YOGYAKARTA" }, "geometry": { "type": "Point", "coordinates": [110.45, -7.87] } },
+                { "type": "Feature", "properties": { "name": "JAWA TIMUR" }, "geometry": { "type": "Point", "coordinates": [112.73, -7.54] } },
+                { "type": "Feature", "properties": { "name": "BANTEN" }, "geometry": { "type": "Point", "coordinates": [106.15, -6.44] } },
+                { "type": "Feature", "properties": { "name": "BALI" }, "geometry": { "type": "Point", "coordinates": [115.19, -8.41] } },
+                { "type": "Feature", "properties": { "name": "NUSA TENGGARA BARAT" }, "geometry": { "type": "Point", "coordinates": [117.56, -8.65] } },
+                { "type": "Feature", "properties": { "name": "NUSA TENGGARA TIMUR" }, "geometry": { "type": "Point", "coordinates": [121.08, -8.68] } },
+                { "type": "Feature", "properties": { "name": "KALIMANTAN BARAT" }, "geometry": { "type": "Point", "coordinates": [111.12, -0.02] } },
+                { "type": "Feature", "properties": { "name": "KALIMANTAN TENGAH" }, "geometry": { "type": "Point", "coordinates": [113.28, -1.69] } },
+                { "type": "Feature", "properties": { "name": "KALIMANTAN SELATAN" }, "geometry": { "type": "Point", "coordinates": [115.45, -3.09] } },
+                { "type": "Feature", "properties": { "name": "KALIMANTAN TIMUR" }, "geometry": { "type": "Point", "coordinates": [116.42, 0.58] } },
+                { "type": "Feature", "properties": { "name": "KALIMANTAN UTARA" }, "geometry": { "type": "Point", "coordinates": [116.47, 3.08] } },
+                { "type": "Feature", "properties": { "name": "SULAWESI UTARA" }, "geometry": { "type": "Point", "coordinates": [124.57, 1.34] } },
+                { "type": "Feature", "properties": { "name": "SULAWESI TENGAH" }, "geometry": { "type": "Point", "coordinates": [121.2, -1.4] } },
+                { "type": "Feature", "properties": { "name": "SULAWESI SELATAN" }, "geometry": { "type": "Point", "coordinates": [120.16, -4.14] } },
+                { "type": "Feature", "properties": { "name": "SULAWESI TENGGARA" }, "geometry": { "type": "Point", "coordinates": [122.07, -4.14] } },
+                { "type": "Feature", "properties": { "name": "GORONTALO" }, "geometry": { "type": "Point", "coordinates": [122.45, 0.7] } },
+                { "type": "Feature", "properties": { "name": "SULAWESI BARAT" }, "geometry": { "type": "Point", "coordinates": [119.35, -2.6] } },
+                { "type": "Feature", "properties": { "name": "MALUKU" }, "geometry": { "type": "Point", "coordinates": [129.41, -3.24] } },
+                { "type": "Feature", "properties": { "name": "MALUKU UTARA" }, "geometry": { "type": "Point", "coordinates": [127.53, 0.78] } },
+                { "type": "Feature", "properties": { "name": "PAPUA BARAT" }, "geometry": { "type": "Point", "coordinates": [132.96, -1.34] } },
+                { "type": "Feature", "properties": { "name": "PAPUA" }, "geometry": { "type": "Point", "coordinates": [138.8, -4.5] } },
+                { "type": "Feature", "properties": { "name": "PAPUA TENGAH" }, "geometry": { "type": "Point", "coordinates": [136.2, -4] } },
+                { "type": "Feature", "properties": { "name": "PAPUA PEGUNUNGAN" }, "geometry": { "type": "Point", "coordinates": [139.5, -4.3] } },
+                { "type": "Feature", "properties": { "name": "PAPUA SELATAN" }, "geometry": { "type": "Point", "coordinates": [139.5, -7] } },
+                { "type": "Feature", "properties": { "name": "PAPUA BARAT DAYA" }, "geometry": { "type": "Point", "coordinates": [131.5, -1] } }
             ]
         };
+        const ALL_PROVINCES = indonesiaGeoJson.features.map(f => f.properties.name).sort();
 
-        // --- MAP INITIALIZATION ---
-        let map; // Declare map variable
-
-        function initMap() {
-            if (map) {
-                map.remove();
-            }
-            map = L.map('map').setView([-2.5, 118], 5);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            }).addTo(map);
-
-            infoPanel.addTo(map);
-            legend.addTo(map);
-        }
-
-        let geojsonLayer;
-        let infoPanel = L.control();
-        let legend = L.control({position: 'bottomright'});
+        let map; let geojsonLayer; let infoPanel = L.control(); let legend = L.control({position: 'bottomright'});
         
         infoPanel.onAdd = function (map) { this._div = L.DomUtil.create('div', 'info-panel'); this.update(); return this._div; };
-        infoPanel.update = function (props) { this._div.innerHTML = '<h4>Jumlah Produk per Provinsi</h4>' + (props ? '<b>' + props.name + '</b><br />' + (props.density || 0) + ' produk' : 'Arahkan mouse ke provinsi'); };
+        infoPanel.update = function (props) { this._div.innerHTML = '<h4>Jumlah Produk per Provinsi</h4>' + (props ? `<b>${props.name}</b><br />${props.density || 0} produk` : 'Arahkan mouse ke provinsi'); };
 
         legend.onAdd = function (map) {
             let div = L.DomUtil.create('div', 'info-panel legend'), grades = [0, 1, 2, 5, 10];
-            for (let i = 0; i < grades.length; i++) { div.innerHTML += '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' + grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+'); }
+            for (let i = 0; i < grades.length; i++) { div.innerHTML += `<i style="background:${getColor(grades[i] + 1)}"></i> ${grades[i]}${(grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+')}`; }
             return div;
         };
-        
-        // --- CHART INITIALIZATION ---
+
         const ctx = document.getElementById('categoryChart').getContext('2d');
         let categoryChart = new Chart(ctx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Jumlah Produk', data: [], backgroundColor: 'rgba(59, 130, 246, 0.7)', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } });
 
         // --- CORE FUNCTIONS ---
-        function updateDashboard(productData) {
-            // Update Stats
-            const totalProducts = productData.length;
-            const categories = [...new Set(productData.map(p => p.kategori_1))].length;
-            
-            document.getElementById('stats-cards').innerHTML = `
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="text-sm font-semibold text-gray-500">Total Produk Tampil</h4>
-                    <p class="text-3xl font-bold">${totalProducts.toLocaleString('id-ID')}</p>
-                </div>
-                 <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="text-sm font-semibold text-gray-500">Jumlah Kategori Unik</h4>
-                    <p class="text-3xl font-bold">${categories}</p>
-                </div>
-            `;
-
-            // Update Map
-            if (map) {
-                const productCountByProvince = productData.reduce((acc, product) => { acc[product.provinsi] = (acc[product.provinsi] || 0) + 1; return acc; }, {});
-                if (geojsonLayer) { map.removeLayer(geojsonLayer); }
-                geojsonLayer = L.geoJson(indonesiaGeoJson, {
-                    style: feature => { const count = productCountByProvince[feature.properties.name] || 0; return { fillColor: getColor(count), weight: 1, opacity: 1, color: 'white', dashArray: '3', fillOpacity: 0.7, radius: 5 + count * 2, color: "#333" }; },
-                    onEachFeature: (feature, layer) => {
-                        layer.on({
-                            mouseover: e => { let layer = e.target; layer.setStyle({ weight: 3, color: '#666', dashArray: '', }); infoPanel.update(layer.feature.properties); },
-                            mouseout: e => { geojsonLayer.resetStyle(e.target); infoPanel.update(); }
-                        });
-                         if (feature.geometry.type === 'Point') { const count = productCountByProvince[feature.properties.name] || 0; layer.setRadius(5 + count * 2); layer.bindPopup(`<b>${feature.properties.name}</b><br>${count} produk`); }
-                    },
-                    pointToLayer: (feature, latlng) => L.circleMarker(latlng)
-                }).addTo(map);
-                geojsonLayer.eachLayer(layer => { const provName = layer.feature.properties.name; layer.feature.properties.density = productCountByProvince[provName] || 0; });
-                map.invalidateSize();
-            }
-
-            // Update Chart
-            const productCountByCategory = productData.reduce((acc, product) => { acc[product.kategori_1] = (acc[product.kategori_1] || 0) + 1; return acc; }, {});
-            categoryChart.data.labels = Object.keys(productCountByCategory);
-            categoryChart.data.datasets[0].data = Object.values(productCountByCategory);
-            categoryChart.update();
-        }
-
-        function updateFilteredTable(productData) {
-            const tableBody = document.getElementById('filteredTableBody');
-            tableBody.innerHTML = '';
-            if (productData.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-gray-500">Tidak ada data yang cocok dengan filter.</td></tr>`;
-                return;
-            }
-            productData.forEach(product => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.nama_produk}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.perusahaan}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-        
+        function initMap() { if (map) map.remove(); map = L.map('map').setView([-2.5, 118], 5); L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map); infoPanel.addTo(map); legend.addTo(map); }
         function getColor(d) { return d > 10 ? '#800026' : d > 5 ? '#BD0026' : d > 2 ? '#E31A1C' : d > 1 ? '#FC4E2A' : d > 0 ? '#FED976' : '#d1d5db'; }
 
-        function runComparison() {
-            const selectedDate = document.getElementById('comparisonDate').value;
-            
-            if (selectedDate === 'latest') {
-                 activeDataSource = latestProducts;
-                 populateFilters(activeDataSource, true);
-                 applyAndRenderFilters();
-                 return;
-            }
-            
-            const comparisonDays = parseInt(document.getElementById('comparisonDay').value);
-            const dataBefore = dataSnapshots[selectedDate];
-            const dateAfter = new Date(selectedDate);
-            dateAfter.setDate(dateAfter.getDate() + comparisonDays);
-            const dataAfter = latestProducts.filter(p => new Date(p.last_update) <= dateAfter);
-            
-            const selectedLog = marketSoundingLog.find(log => log.tanggal === selectedDate);
-            const contentDiv = document.getElementById('comparison-content');
-            const productsBeforeNames = new Set(dataBefore.map(p => p.nama_produk));
-            const productsAfterNames = new Set(dataAfter.map(p => p.nama_produk));
-            const newProducts = [...productsAfterNames].filter(p => !productsBeforeNames.has(p));
-            const removedProducts = [...productsBeforeNames].filter(p => !productsAfterNames.has(p));
+        function updateDashboard(productData) {
+            const totalProducts = productData.length; const categories = [...new Set(productData.map(p => p.kategori_1))].length;
+            document.getElementById('stats-cards').innerHTML = `<div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm font-semibold text-gray-500">Total Produk Tampil</h4><p class="text-3xl font-bold">${totalProducts.toLocaleString('id-ID')}</p></div><div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm font-semibold text-gray-500">Jumlah Kategori Unik</h4><p class="text-3xl font-bold">${categories}</p></div>`;
+            if (map) { const productCountByProvince = productData.reduce((acc, p) => { acc[p.provinsi] = (acc[p.provinsi] || 0) + 1; return acc; }, {}); if (geojsonLayer) map.removeLayer(geojsonLayer); geojsonLayer = L.geoJson(indonesiaGeoJson, { style: f => { const c = productCountByProvince[f.properties.name] || 0; return { fillColor: getColor(c), weight: 1, opacity: 1, color: 'white', fillOpacity: 0.7, radius: 5 + c * 2 }; }, onEachFeature: (f, l) => { l.on({ mouseover: e => { e.target.setStyle({ weight: 3, color: '#666' }); infoPanel.update(e.target.feature.properties); }, mouseout: e => geojsonLayer.resetStyle(e.target) }); if (f.geometry.type === 'Point') { const c = productCountByProvince[f.properties.name] || 0; l.setRadius(5 + c * 2); l.bindPopup(`<b>${f.properties.name}</b><br>${c} produk`); } }, pointToLayer: (f, l) => L.circleMarker(l) }).addTo(map); geojsonLayer.eachLayer(l => { const p = l.feature.properties; p.density = productCountByProvince[p.name] || 0; }); map.invalidateSize(); }
+            const productCountByCategory = productData.reduce((acc, p) => { acc[p.kategori_1] = (acc[p.kategori_1] || 0) + 1; return acc; }, {}); categoryChart.data.labels = Object.keys(productCountByCategory); categoryChart.data.datasets[0].data = Object.values(productCountByCategory); categoryChart.update();
+        }
 
-            contentDiv.innerHTML = `
+        function updateFilteredTable(productData) { const t = document.getElementById('filteredTableBody'); t.innerHTML = ''; if (productData.length === 0) { t.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`; return; } productData.forEach(p => { const r = document.createElement('tr'); r.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${p.nama_produk}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.perusahaan}</td>`; t.appendChild(r); }); }
+        
+        function runComparison() {
+            const date = document.getElementById('comparisonDate').value;
+            if (date === 'latest') return;
+            const days = parseInt(document.getElementById('comparisonDay').value);
+            const dataBefore = dataSnapshots[date];
+            if (!dataBefore) {
+                alert(`Snapshot untuk tanggal ${date} tidak ditemukan.`);
+                return;
+            }
+            const dateAfter = new Date(date);
+            dateAfter.setDate(dateAfter.getDate() + days);
+            const dataAfter = latestProducts.filter(p => new Date(p.last_update) <= dateAfter);
+
+            const log = marketSoundingLog.find(l => l.tanggal === date);
+            
+            const beforeProductIds = new Set(dataBefore.map(p => `${p.nama_produk}::${p.perusahaan}`));
+            const afterProductIds = new Set(dataAfter.map(p => `${p.nama_produk}::${p.perusahaan}`));
+
+            const newProducts = dataAfter.filter(p => !beforeProductIds.has(`${p.nama_produk}::${p.perusahaan}`));
+            const removedProducts = dataBefore.filter(p => !afterProductIds.has(`${p.nama_produk}::${p.perusahaan}`));
+
+            document.getElementById('comparison-content').innerHTML = `
                 <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg mb-4">
-                    <p class="font-semibold text-blue-800">Analisis untuk Market Sounding oleh ${selectedLog.balai}</p>
-                    <p class="text-sm text-gray-700">Paket Pekerjaan: <span class="font-medium">"${selectedLog.paket_pekerjaan}"</span></p>
+                    <p class="font-semibold text-blue-800">Analisis untuk: ${log.balai}</p>
+                    <p class="text-sm text-gray-700">Paket: <span class="font-medium">"${log.paket_pekerjaan}"</span></p>
                 </div>
-                <p class="mb-2">Perbandingan data pada <strong>${selectedDate}</strong> dengan <strong>${comparisonDays} hari setelahnya</strong>.</p>
+                <p class="mb-2">Perbandingan <strong>${date}</strong> dengan <strong>${days} hari setelahnya</strong>.</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold">Produk Awal</h4><p class="text-2xl">${dataBefore.length}</p></div>
                     <div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold">Produk Akhir</h4><p class="text-2xl">${dataAfter.length}</p></div>
-                    <div class="p-4 rounded-lg ${dataAfter.length > dataBefore.length ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}"><h4 class="font-semibold">Perubahan</h4><p class="text-2xl">${dataAfter.length - dataBefore.length > 0 ? '+' : ''}${dataAfter.length - dataBefore.length}</p></div>
+                    <div class="p-4 rounded-lg ${dataAfter.length >= dataBefore.length ? 'bg-green-100' : 'bg-red-100'}"><h4 class="font-semibold">Perubahan</h4><p class="text-2xl">${dataAfter.length - dataBefore.length >= 0 ? '+' : ''}${dataAfter.length - dataBefore.length}</p></div>
                 </div>
-                <div class="mt-4"><h4 class="font-semibold">Produk Baru:</h4><ul class="list-disc pl-5 text-sm text-green-700">${newProducts.length > 0 ? newProducts.map(p => `<li>${p}</li>`).join('') : '<li>Tidak ada.</li>'}</ul></div>
-                <div class="mt-2"><h4 class="font-semibold">Produk Dihapus/Diganti:</h4><ul class="list-disc pl-5 text-sm text-red-700">${removedProducts.length > 0 ? removedProducts.map(p => `<li>${p}</li>`).join('') : '<li>Tidak ada.</li>'}</ul></div>`;
-            
+                <div class="mt-4">
+                    <h4 class="font-semibold">Produk Baru:</h4>
+                    <ul class="list-disc pl-5 text-sm text-green-700">${newProducts.length > 0 ? newProducts.map(p => `<li>${p.nama_produk} <span class="text-gray-500">- ${p.perusahaan}</span></li>`).join('') : '<li>Tidak ada.</li>'}</ul>
+                </div>
+                <div class="mt-2">
+                    <h4 class="font-semibold">Produk Dihapus/Diganti:</h4>
+                    <ul class="list-disc pl-5 text-sm text-red-700">${removedProducts.length > 0 ? removedProducts.map(p => `<li>${p.nama_produk} <span class="text-gray-500">- ${p.perusahaan}</span></li>`).join('') : '<li>Tidak ada.</li>'}</ul>
+                </div>`;
             openModal('analysisResultModal');
         }
 
-        // --- FILTER LOGIC ---
-        const filters = {
-            provinsi: document.getElementById('filterProvinsi'),
-            kategori1: document.getElementById('filterKategori1'),
-            kategori2: document.getElementById('filterKategori2'),
-            produk: document.getElementById('filterProduk')
-        };
+
+        const filters = { provinsi: document.getElementById('filterProvinsi'), kategori1: document.getElementById('filterKategori1'), kategori2: document.getElementById('filterKategori2'), produk: document.getElementById('filterProduk') };
+        function populateSelect(el, opt, def) { const cur = el.value; el.innerHTML = `<option value="all">${def}</option>`; [...new Set(opt)].sort().forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; el.appendChild(op); }); el.value = cur && opt.includes(cur) ? cur : 'all'; }
+        function populateFilters(data, reset = false) { if (reset) Object.values(filters).forEach(s => s.value = 'all'); let fData = [...data]; populateSelect(filters.provinsi, ALL_PROVINCES, 'Semua Provinsi'); if (filters.provinsi.value !== 'all') fData = fData.filter(p => p.provinsi === filters.provinsi.value); populateSelect(filters.kategori1, fData.map(p => p.kategori_1), 'Semua Kategori 1'); if (filters.kategori1.value !== 'all') fData = fData.filter(p => p.kategori_1 === filters.kategori1.value); populateSelect(filters.kategori2, fData.map(p => p.kategori_2).filter(Boolean), 'Semua Kategori 2'); if (filters.kategori2.value !== 'all') fData = fData.filter(p => p.kategori_2 === filters.kategori2.value); populateSelect(filters.produk, fData.map(p => p.nama_produk), 'Semua Produk'); }
+        function applyAndRenderFilters() { let data = [...activeDataSource]; if (filters.provinsi.value !== 'all') data = data.filter(p => p.provinsi === filters.provinsi.value); if (filters.kategori1.value !== 'all') data = data.filter(p => p.kategori_1 === filters.kategori1.value); if (filters.kategori2.value !== 'all') data = data.filter(p => p.kategori_2 === filters.kategori2.value); if (filters.produk.value !== 'all') data = data.filter(p => p.nama_produk === filters.produk.value); updateDashboard(data); updateFilteredTable(data); }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function closeModalOnOutsideClick(e) { if (e.target.classList.contains('modal-container')) closeModal(e.target.id); }
+
+        function showToast(message) { const t = document.getElementById('toast-notification'); t.textContent = message; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; }, 3000); }
+        function promptDeleteEvent(date) { const log = marketSoundingLog.find(l => l.tanggal === date); if (!log) return; document.getElementById('deleteEventDetails').innerHTML = `<strong>${log.balai}</strong> - ${log.paket_pekerjaan} <br> (${log.tanggal})`; const btn = document.getElementById('confirmDeleteBtn'); btn.dataset.deleteId = date; openModal('deleteConfirmationModal'); }
+        function deleteEvent() { const dateToDelete = document.getElementById('confirmDeleteBtn').dataset.deleteId; marketSoundingLog = marketSoundingLog.filter(l => l.tanggal !== dateToDelete); delete dataSnapshots[dateToDelete]; populateHistoryTable(); populateComparisonDropdown(); closeModal('deleteConfirmationModal'); showToast('Event berhasil dihapus.'); }
+
+        function populateHistoryTable() { const t = document.getElementById('historyTableBody'); t.innerHTML = ''; marketSoundingLog.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).forEach(log => { const r = document.createElement('tr'); r.innerHTML = `<td class="px-6 py-4 text-sm">${log.tanggal}</td><td class="px-6 py-4 text-sm">${log.balai}</td><td class="px-6 py-4 text-sm">${log.wilayah}</td><td class="px-6 py-4 text-sm">${log.paket_pekerjaan}</td><td class="px-6 py-4 text-sm font-medium ${log.totalPerubahan > 0 ? 'text-green-600' : ''}">${log.totalPerubahan > 0 ? `+${log.totalPerubahan}` : '0'}</td><td class="px-6 py-4 text-sm"><button onclick="promptDeleteEvent('${log.tanggal}')" class="text-red-600 hover:text-red-900"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>`; t.appendChild(r); }); }
+        function populateComparisonDropdown() { const s = document.getElementById('comparisonDate'); s.innerHTML = '<option value="latest">Tampilkan Data Terkini</option>'; marketSoundingLog.forEach(log => { const o = document.createElement('option'); o.value = log.tanggal; o.textContent = `${log.balai}: ${log.paket_pekerjaan}`; s.appendChild(o); }); }
         
-        function populateSelect(selectElement, options, defaultValue) {
-            const currentValue = selectElement.value;
-            selectElement.innerHTML = `<option value="all">${defaultValue}</option>`;
-            [...new Set(options)].sort().forEach(option => {
-                const opt = document.createElement('option');
-                opt.value = option;
-                opt.textContent = option;
-                selectElement.appendChild(opt);
-            });
-            selectElement.value = currentValue && options.includes(currentValue) ? currentValue : 'all';
-        }
-
-        function populateFilters(data, resetAll = false) {
-            if (resetAll) {
-                Object.values(filters).forEach(sel => sel.value = 'all');
-            }
-            
-            let filteredData = [...data];
-            
-            populateSelect(filters.provinsi, data.map(p => p.provinsi), 'Semua Provinsi');
-            if (filters.provinsi.value !== 'all') {
-                filteredData = filteredData.filter(p => p.provinsi === filters.provinsi.value);
-            }
-
-            populateSelect(filters.kategori1, filteredData.map(p => p.kategori_1), 'Semua Kategori 1');
-            if (filters.kategori1.value !== 'all') {
-                filteredData = filteredData.filter(p => p.kategori_1 === filters.kategori1.value);
-            }
-
-            populateSelect(filters.kategori2, filteredData.map(p => p.kategori_2).filter(Boolean), 'Semua Kategori 2');
-            if (filters.kategori2.value !== 'all') {
-                filteredData = filteredData.filter(p => p.kategori_2 === filters.kategori2.value);
-            }
-
-            populateSelect(filters.produk, filteredData.map(p => p.nama_produk), 'Semua Produk');
-        }
-
-        function applyAndRenderFilters() {
-            let dataToRender = [...activeDataSource];
-            if (filters.provinsi.value !== 'all') dataToRender = dataToRender.filter(p => p.provinsi === filters.provinsi.value);
-            if (filters.kategori1.value !== 'all') dataToRender = dataToRender.filter(p => p.kategori_1 === filters.kategori1.value);
-            if (filters.kategori2.value !== 'all') dataToRender = dataToRender.filter(p => p.kategori_2 === filters.kategori2.value);
-            if (filters.produk.value !== 'all') dataToRender = dataToRender.filter(p => p.nama_produk === filters.produk.value);
-            
-            updateDashboard(dataToRender);
-            updateFilteredTable(dataToRender);
-        }
-
-        Object.values(filters).forEach(select => {
-            select.addEventListener('change', () => {
-                populateFilters(activeDataSource);
-                applyAndRenderFilters();
-            });
-        });
-
-        // --- MODAL CONTROLS ---
-        function openModal(modalId) { 
-            document.getElementById(modalId).style.display = 'flex'; 
-            if (modalId !== 'analysisResultModal' && map) {
-                setTimeout(() => map.invalidateSize(), 1);
-            }
-        }
-        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-        function closeModalOnOutsideClick(event) { if (event.target.classList.contains('modal-container')) { closeModal(event.target.id); } }
-
-        function handleComparisonChange() {
-            const comparisonSelect = document.getElementById('comparisonDate');
-            if (comparisonSelect.value === 'latest') {
-                // If 'Tampilkan Data Terkini' is selected, reset the view immediately.
-                activeDataSource = latestProducts;
-                populateFilters(activeDataSource, true);
-                applyAndRenderFilters();
-            }
-        }
-
-        // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
-            
-            const comparisonSelect = document.getElementById('comparisonDate');
-            marketSoundingLog.forEach(log => {
-                const option = document.createElement('option');
-                option.value = log.tanggal;
-                option.textContent = `${log.balai}: ${log.paket_pekerjaan}`;
-                comparisonSelect.appendChild(option);
-            });
-            comparisonSelect.addEventListener('change', handleComparisonChange);
-
-            const provinsiSelect = document.getElementById('provinsi');
-            NAMA_PROVINSI.forEach(prov => { const option = document.createElement('option'); option.value = prov; option.textContent = prov; provinsiSelect.appendChild(option); });
-
-            const historyBody = document.getElementById('historyTableBody');
-            marketSoundingLog.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).forEach(log => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.tanggal}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.balai}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.wilayah}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.paket_pekerjaan}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${log.totalPerubahan > 0 ? 'text-green-600' : 'text-gray-500'}">
-                       ${log.totalPerubahan > 0 ? `+${log.totalPerubahan} produk` : 'Tidak ada perubahan'}
-                    </td>
-                `;
-                historyBody.appendChild(row);
-            });
-
-            document.getElementById('marketSoundingForm').addEventListener('submit', function(e) { e.preventDefault(); alert('Data Market Sounding berhasil disimulasikan!'); closeModal('marketSoundingModal'); this.reset(); });
-
+            populateComparisonDropdown();
+            document.getElementById('comparisonDate').addEventListener('change', e => { if (e.target.value === 'latest') { activeDataSource = latestProducts; populateFilters(activeDataSource, true); applyAndRenderFilters(); }});
+            const provSelect = document.getElementById('provinsi'); ALL_PROVINCES.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; provSelect.appendChild(o); });
+            populateHistoryTable();
+            document.getElementById('marketSoundingForm').addEventListener('submit', function(e) { e.preventDefault(); alert('Simulasi: Data berhasil disimpan!'); closeModal('marketSoundingModal'); this.reset(); });
+            document.getElementById('confirmDeleteBtn').addEventListener('click', deleteEvent);
+            Object.values(filters).forEach(s => s.addEventListener('change', () => { populateFilters(activeDataSource); applyAndRenderFilters(); }));
             populateFilters(activeDataSource, true);
             applyAndRenderFilters();
         });
