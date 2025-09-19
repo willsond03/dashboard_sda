@@ -30,7 +30,7 @@
         <aside class="w-64 bg-white shadow-lg flex flex-col">
             <div class="p-4 border-b">
                 <h1 class="text-xl font-bold text-gray-700">E-Katalog SDA</h1>
-                <p class="text-xs text-gray-500">Dashboard Monitoring SDA v.1.4</p>
+                <p class="text-xs text-gray-500">Dashboard Monitoring v1.4.1 market sounding events filter fix [1]</p>
             </div>
             <nav class="flex-1 p-4 space-y-2">
                 <a href="#" class="flex items-center p-2 text-base rounded-lg bg-gray-200"><svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span class="ml-3">Dashboard</span></a>
@@ -125,9 +125,10 @@
                 return date.toISOString().slice(0, 10);
             }
             const endDateString = addDaysAndFormat(eventDateString, days);
-
-            const dataBefore = latestProducts.filter(p => p.provinsi === log.wilayah && p.last_update <= eventDateString);
-            const dataAfter = latestProducts.filter(p => p.provinsi === log.wilayah && p.last_update <= endDateString);
+            
+            // PERBAIKAN: Selalu ambil 10 karakter pertama (YYYY-MM-DD) dari data
+            const dataBefore = latestProducts.filter(p => p.provinsi === log.wilayah && (p.last_update || '').substring(0, 10) <= eventDateString);
+            const dataAfter = latestProducts.filter(p => p.provinsi === log.wilayah && (p.last_update || '').substring(0, 10) <= endDateString);
 
             const beforeIds = new Set(dataBefore.map(p => `${p.nama_produk}::${p.perusahaan}`));
             const newProducts = dataAfter.filter(p => !beforeIds.has(`${p.nama_produk}::${p.perusahaan}`));
@@ -150,7 +151,6 @@
             openModal('analysisResultModal');
         }
 
-
         const filters = { provinsi: document.getElementById('filterProvinsi'), kategori1: document.getElementById('filterKategori1'), kategori2: document.getElementById('filterKategori2'), produk: document.getElementById('filterProduk') };
         function populateSelect(el, opt, def) { const cur = el.value; el.innerHTML = `<option value="all">${def}</option>`; [...new Set(opt)].sort().forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; el.appendChild(op); }); if (el.querySelector(`option[value="${cur}"]`)) { el.value = cur; } else { el.value = 'all'; } }
         function populateFilters(data, reset = false) { if (reset) Object.values(filters).forEach(s => s.value = 'all'); let fData = [...data]; populateSelect(filters.provinsi, ALL_PROVINCES, 'Semua Provinsi'); if (filters.provinsi.value !== 'all') fData = fData.filter(p => p.provinsi === filters.provinsi.value); populateSelect(filters.kategori1, fData.map(p => p.kategori_1), 'Semua Kategori 1'); if (filters.kategori1.value !== 'all') fData = fData.filter(p => p.kategori_1 === filters.kategori1.value); populateSelect(filters.kategori2, fData.map(p => p.kategori_2).filter(Boolean), 'Semua Kategori 2'); if (filters.kategori2.value !== 'all') fData = fData.filter(p => p.kategori_2 === filters.kategori2.value); populateSelect(filters.produk, fData.map(p => p.nama_produk), 'Semua Produk'); }
@@ -160,33 +160,21 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         
         function showToast(message) { const t = document.getElementById('toast-notification'); t.textContent = message; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; }, 3000); }
-        function promptDeleteEvent(date) { const log = marketSoundingLog.find(l => l.tanggal === date); if (!log) return; document.getElementById('deleteEventDetails').innerHTML = `<strong>${log.balai}</strong> - ${log.paket_pekerjaan} <br> (${log.tanggal})`; document.getElementById('confirmDeleteBtn').dataset.deleteId = date; openModal('deleteConfirmationModal'); }
+        function promptDeleteEvent(date) { const log = marketSoundingLog.find(l => l.tanggal.substring(0, 10) === date); if (!log) return; document.getElementById('deleteEventDetails').innerHTML = `<strong>${log.balai}</strong> - ${log.paket_pekerjaan} <br> (${date})`; document.getElementById('confirmDeleteBtn').dataset.deleteId = date; openModal('deleteConfirmationModal'); }
         
         function deleteEvent() { alert(`Fungsi Hapus belum diimplementasikan di Apps Script.`); }
 
-        // ===============================================================
-        // FUNGSI-FUNGSI POPULASI YANG DIPERBAIKI
-        // ===============================================================
         function populateHistoryTable(logs) {
             const tBody = document.getElementById('historyTableBody');
             tBody.innerHTML = '';
             if (!logs || logs.length === 0) return;
-
             const fragment = document.createDocumentFragment();
-            logs
-                .filter(log => log && log.tanggal)
-                .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
-                .forEach(log => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="px-6 py-4 text-sm">${log.tanggal || ''}</td>
-                        <td class="px-6 py-4 text-sm">${log.balai || ''}</td>
-                        <td class="px-6 py-4 text-sm">${log.wilayah || ''}</td>
-                        <td class="px-6 py-4 text-sm">${log.paket_pekerjaan || ''}</td>
-                        <td class="px-6 py-4"><button onclick="promptDeleteEvent('${log.tanggal}')" class="text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>
-                    `;
-                    fragment.appendChild(row);
-                });
+            logs.filter(log => log && log.tanggal).sort((a, b) => b.tanggal.localeCompare(a.tanggal)).forEach(log => {
+                const dateOnly = log.tanggal.substring(0, 10);
+                const row = document.createElement('tr');
+                row.innerHTML = `<td class="px-6 py-4 text-sm">${dateOnly}</td><td class="px-6 py-4 text-sm">${log.balai || ''}</td><td class="px-6 py-4 text-sm">${log.wilayah || ''}</td><td class="px-6 py-4 text-sm">${log.paket_pekerjaan || ''}</td><td class="px-6 py-4"><button onclick="promptDeleteEvent('${dateOnly}')" class="text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>`;
+                fragment.appendChild(row);
+            });
             tBody.appendChild(fragment);
         }
         
@@ -194,17 +182,14 @@
             const s = document.getElementById('comparisonDate');
             s.innerHTML = '<option value="latest">Tampilkan Data Terkini</option>';
             if (!logs || logs.length === 0) return;
-
             const fragment = document.createDocumentFragment();
-            logs
-                .filter(log => log && log.tanggal)
-                .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
-                .forEach(log => {
-                    const op = document.createElement('option');
-                    op.value = `${log.tanggal};${log.balai};${log.wilayah};${log.paket_pekerjaan}`;
-                    op.textContent = `${log.balai}: ${log.paket_pekerjaan} (${log.tanggal})`;
-                    fragment.appendChild(op);
-                });
+            logs.filter(log => log && log.tanggal).sort((a, b) => b.tanggal.localeCompare(a.tanggal)).forEach(log => {
+                const dateOnly = log.tanggal.substring(0, 10);
+                const op = document.createElement('option');
+                op.value = `${dateOnly};${log.balai};${log.wilayah};${log.paket_pekerjaan}`;
+                op.textContent = `${log.balai}: ${log.paket_pekerjaan} (${dateOnly})`;
+                fragment.appendChild(op);
+            });
             s.appendChild(fragment);
         }
         
