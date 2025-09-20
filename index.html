@@ -21,7 +21,7 @@
         ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
         .modal-container { z-index: 1000; }
         .toast-notification { z-index: 1100; transition: opacity 0.5s, transform 0.5s; }
-        .pagination-btn:disabled { cursor: not-allowed; background-color: #d1d5db; }
+        .pagination-btn:disabled { cursor: not-allowed; background-color: #9ca3af; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -67,15 +67,13 @@
                 <div class="bg-white p-4 rounded-lg shadow h-[60vh]"><h3 class="font-semibold mb-2">Produk per Kategori</h3><canvas id="categoryChart"></canvas></div>
             </div>
             <div class="bg-white p-4 rounded-lg shadow">
-                <h3 class="font-semibold mb-2">Detail Produk</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium uppercase">Nama Produk</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Perusahaan</th></tr></thead>
-                        <tbody id="filteredTableBody" class="bg-white divide-y"></tbody>
-                    </table>
+                 <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-semibold">Detail Produk</h3>
+                    <div id="pagination-summary" class="text-sm text-gray-700"></div>
                 </div>
-                <!-- Pagination Controls -->
-                <div id="pagination-controls" class="flex justify-between items-center mt-4 px-2"></div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium uppercase">Nama Produk</th><th class="px-6 py-3 text-left text-xs font-medium uppercase">Perusahaan</th></tr></thead><tbody id="filteredTableBody" class="bg-white divide-y"></tbody></table></div>
+                <div id="pagination-controls" class="flex justify-end items-center mt-4"></div>
             </div>
         </main>
     </div>
@@ -94,34 +92,33 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbxGIlUNHm_9qm11g0sFnW8_N67mdLNsjRDWDn8uewmyJ6pX1HYWLVoiVR-ifkCxM4PL/exec";
         let marketSoundingLog = [];
         let latestProducts = [];
-        let filteredProducts = []; // NEW: Will hold the currently filtered data
+        let filteredProducts = [];
         let currentPage = 1;
-        const ITEMS_PER_PAGE = 10; // Items per page for pagination
+        const ITEMS_PER_PAGE = 10;
         
         const indonesiaGeoJson = { "type": "FeatureCollection", "features": [{ "type": "Feature", "properties": { "name": "ACEH" }, "geometry": { "type": "Point", "coordinates": [96.92, 4.22] } }, { "type": "Feature", "properties": { "name": "SUMATERA UTARA" }, "geometry": { "type": "Point", "coordinates": [99.5, 2.5] } }, { "type": "Feature", "properties": { "name": "SUMATERA BARAT" }, "geometry": { "type": "Point", "coordinates": [100.47, -0.74] } }, { "type": "Feature", "properties": { "name": "RIAU" }, "geometry": { "type": "Point", "coordinates": [101.69, 0.51] } }, { "type": "Feature", "properties": { "name": "JAMBI" }, "geometry": { "type": "Point", "coordinates": [102.73, -1.61] } }, { "type": "Feature", "properties": { "name": "SUMATERA SELATAN" }, "geometry": { "type": "Point", "coordinates": [104.09, -3.32] } }, { "type": "Feature", "properties": { "name": "BENGKULU" }, "geometry": { "type": "Point", "coordinates": [102.34, -3.8] } }, { "type": "Feature", "properties": { "name": "LAMPUNG" }, "geometry": { "type": "Point", "coordinates": [105.02, -4.89] } }, { "type": "Feature", "properties": { "name": "KEPULAUAN BANGKA BELITUNG" }, "geometry": { "type": "Point", "coordinates": [106.51, -2.74] } }, { "type": "Feature", "properties": { "name": "KEPULAUAN RIAU" }, "geometry": { "type": "Point", "coordinates": [104.51, 0.92] } }, { "type": "Feature", "properties": { "name": "DKI JAKARTA" }, "geometry": { "type": "Point", "coordinates": [106.82, -6.21] } }, { "type": "Feature", "properties": { "name": "JAWA BARAT" }, "geometry": { "type": "Point", "coordinates": [107.62, -6.92] } }, { "type": "Feature", "properties": { "name": "JAWA TENGAH" }, "geometry": { "type": "Point", "coordinates": [110.2, -7.26] } }, { "type": "Feature", "properties": { "name": "DAERAH ISTIMEWA YOGYAKARTA" }, "geometry": { "type": "Point", "coordinates": [110.45, -7.87] } }, { "type": "Feature", "properties": { "name": "JAWA TIMUR" }, "geometry": { "type": "Point", "coordinates": [112.73, -7.54] } }, { "type": "Feature", "properties": { "name": "BANTEN" }, "geometry": { "type": "Point", "coordinates": [106.15, -6.44] } }, { "type": "Feature", "properties": { "name": "BALI" }, "geometry": { "type": "Point", "coordinates": [115.19, -8.41] } }, { "type": "Feature", "properties": { "name": "NUSA TENGGARA BARAT" }, "geometry": { "type": "Point", "coordinates": [117.56, -8.65] } }, { "type": "Feature", "properties": { "name": "NUSA TENGGARA TIMUR" }, "geometry": { "type": "Point", "coordinates": [121.08, -8.68] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN BARAT" }, "geometry": { "type": "Point", "coordinates": [111.12, -0.02] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN TENGAH" }, "geometry": { "type": "Point", "coordinates": [113.28, -1.69] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN SELATAN" }, "geometry": { "type": "Point", "coordinates": [115.45, -3.09] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN TIMUR" }, "geometry": { "type": "Point", "coordinates": [116.42, 0.58] } }, { "type": "Feature", "properties": { "name": "KALIMANTAN UTARA" }, "geometry": { "type": "Point", "coordinates": [116.47, 3.08] } }, { "type": "Feature", "properties": { "name": "SULAWESI UTARA" }, "geometry": { "type": "Point", "coordinates": [124.57, 1.34] } }, { "type": "Feature", "properties": { "name": "SULAWESI TENGAH" }, "geometry": { "type": "Point", "coordinates": [121.2, -1.4] } }, { "type": "Feature", "properties": { "name": "SULAWESI SELATAN" }, "geometry": { "type": "Point", "coordinates": [120.16, -4.14] } }, { "type": "Feature", "properties": { "name": "SULAWESI TENGGARA" }, "geometry": { "type": "Point", "coordinates": [122.07, -4.14] } }, { "type": "Feature", "properties": { "name": "GORONTALO" }, "geometry": { "type": "Point", "coordinates": [122.45, 0.7] } }, { "type": "Feature", "properties": { "name": "SULAWESI BARAT" }, "geometry": { "type": "Point", "coordinates": [119.35, -2.6] } }, { "type": "Feature", "properties": { "name": "MALUKU" }, "geometry": { "type": "Point", "coordinates": [129.41, -3.24] } }, { "type": "Feature", "properties": { "name": "MALUKU UTARA" }, "geometry": { "type": "Point", "coordinates": [127.53, 0.78] } }, { "type": "Feature", "properties": { "name": "PAPUA BARAT" }, "geometry": { "type": "Point", "coordinates": [132.96, -1.34] } }, { "type": "Feature", "properties": { "name": "PAPUA" }, "geometry": { "type": "Point", "coordinates": [138.8, -4.5] } }, { "type": "Feature", "properties": { "name": "PAPUA TENGAH" }, "geometry": { "type": "Point", "coordinates": [136.2, -4] } }, { "type": "Feature", "properties": { "name": "PAPUA PEGUNUNGAN" }, "geometry": { "type": "Point", "coordinates": [139.5, -4.3] } }, { "type": "Feature", "properties": { "name": "PAPUA SELATAN" }, "geometry": { "type": "Point", "coordinates": [139.5, -7] } }, { "type": "Feature", "properties": { "name": "PAPUA BARAT DAYA" }, "geometry": { "type": "Point", "coordinates": [131.5, -1] } }] };
         const ALL_PROVINCES = indonesiaGeoJson.features.map(f => f.properties.name).sort();
         let map, geojsonLayer, infoPanel = L.control(), legend = L.control({position: 'bottomright'});
         infoPanel.onAdd = function (map) { this._div = L.DomUtil.create('div', 'info-panel'); this.update(); return this._div; };
         infoPanel.update = function (props) { this._div.innerHTML = '<h4>Produk per Provinsi</h4>' + (props ? `<b>${props.name}</b><br />${props.density || 0} produk` : 'Arahkan mouse'); };
-        legend.onAdd = function (map) { let div = L.DomUtil.create('div', 'info-panel legend'), g = [0, 10, 50, 100, 200, 500]; for (let i = 0; i < g.length; i++) { div.innerHTML += `<i style="background:${getColor(g[i] + 1)}"></i> ${g[i]}${(g[i + 1] ? '&ndash;' + g[i + 1] + '<br>' : '+')}`; } return div; };
+        legend.onAdd = function (map) { let div = L.DomUtil.create('div', 'info-panel legend'), g = [0, 10, 50, 200, 500]; for (let i = 0; i < g.length; i++) { div.innerHTML += `<i style="background:${getColor(g[i] + 1)}"></i> ${g[i]}${(g[i + 1] ? '&ndash;' + g[i + 1] + '<br>' : '+')}`; } return div; };
         let categoryChart;
 
-        // --- CORE FUNCTIONS ---
+        // --- CORE FUNCTIONS (WITH UPGRADES) ---
         function initMap() { if (map) map.remove(); map = L.map('map').setView([-2.5, 118], 5); L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map); infoPanel.addTo(map); legend.addTo(map); }
-        function initChart() { const canvas = document.getElementById('categoryChart'); if (!canvas) return; const ctx = canvas.getContext('2d'); if(categoryChart) categoryChart.destroy(); categoryChart = new Chart(ctx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Jumlah Produk', data: [], backgroundColor: 'rgba(59, 130, 246, 0.7)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } }); }
+        function initChart() { const canvas = document.getElementById('categoryChart'); if (!canvas) return; const ctx = canvas.getContext('2d'); if(categoryChart) categoryChart.destroy(); categoryChart = new Chart(ctx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Jumlah Produk', data: [], backgroundColor: 'rgba(59, 130, 246, 0.7)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: { ticks: { display: false } } }, plugins: { legend: { display: false } } } }); }
         
-        // NEW: Tiered sizing and coloring for the map
-        function getColor(d) { return d > 500 ? '#800026' : d > 200 ? '#BD0026' : d > 100 ? '#E31A1C' : d > 50 ? '#FC4E2A' : d > 10 ? '#FD8D3C' : d > 0 ? '#FED976' : '#FFFFFF00'; }
-        function getRadius(d) { return d > 500 ? 20 : d > 200 ? 16 : d > 100 ? 12 : d > 50 ? 9 : d > 10 ? 7 : d > 0 ? 5 : 0; }
+        // UPGRADED: Tiered scaling for map visuals
+        function getColor(d) { return d > 500 ? '#800026' : d > 200 ? '#BD0026' : d > 50 ? '#E31A1C' : d > 10 ? '#FC4E2A' : d > 0 ? '#FED976' : '#FFFFFF00'; }
+        function getRadius(d) { return d > 500 ? 20 : d > 200 ? 16 : d > 50 ? 12 : d > 10 ? 8 : d > 0 ? 5 : 0; }
 
         function updateDashboard(productData) {
-            const total = productData.length; const cats = [...new Set(productData.map(p => p.kategori_1))].length;
-            document.getElementById('stats-cards').innerHTML = `<div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm text-gray-500">Total Produk Tampil</h4><p class="text-3xl font-bold">${total}</p></div><div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm text-gray-500">Kategori Unik</h4><p class="text-3xl font-bold">${cats}</p></div>`;
+            const total = productData.length;
+            const cats = [...new Set(productData.map(p => p.kategori_1))].length;
+            document.getElementById('stats-cards').innerHTML = `<div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm text-gray-500">Total Produk Tampil</h4><p class="text-3xl font-bold">${total.toLocaleString('id-ID')}</p></div><div class="bg-white p-4 rounded-lg shadow"><h4 class="text-sm text-gray-500">Kategori Unik</h4><p class="text-3xl font-bold">${cats}</p></div>`;
             
-            // Map Update
-            if (map) { const counts = productData.reduce((a, p) => { a[p.provinsi] = (a[p.provinsi] || 0) + 1; return a; }, {}); if (geojsonLayer) map.removeLayer(geojsonLayer); geojsonLayer = L.geoJson(indonesiaGeoJson, { style: f => { const c = counts[f.properties.name] || 0; return { fillColor: getColor(c), weight: 1, color: 'white', fillOpacity: 0.7, radius: getRadius(c) }; }, onEachFeature: (f, l) => { l.on({ mouseover: e => { e.target.setStyle({ weight: 3, color: '#666' }); infoPanel.update(e.target.feature.properties); }, mouseout: e => geojsonLayer.resetStyle(e.target) }); const c = counts[f.properties.name] || 0; l.setRadius(getRadius(c)); l.bindPopup(`<b>${f.properties.name}</b><br>${c} produk`); }, pointToLayer: (f, l) => L.circleMarker(l) }).addTo(map); geojsonLayer.eachLayer(l => { l.feature.properties.density = counts[l.feature.properties.name] || 0; }); map.invalidateSize(); }
+            if (map) { const counts = productData.reduce((a, p) => { a[p.provinsi] = (a[p.provinsi] || 0) + 1; return a; }, {}); if (geojsonLayer) map.removeLayer(geojsonLayer); geojsonLayer = L.geoJson(indonesiaGeoJson, { onEachFeature: (f, l) => { l.on({ mouseover: e => { e.target.setStyle({ weight: 3, color: '#666' }); infoPanel.update(e.target.feature.properties); }, mouseout: e => geojsonLayer.resetStyle(e.target) }); const c = counts[f.properties.name] || 0; l.setRadius(getRadius(c)); l.bindPopup(`<b>${f.properties.name}</b><br>${c} produk`); }, pointToLayer: (f, l) => L.circleMarker(l, { fillColor: getColor(counts[f.properties.name] || 0), weight: 1, color: 'white', fillOpacity: 0.7, radius: getRadius(counts[f.properties.name] || 0) }) }).addTo(map); geojsonLayer.eachLayer(l => { l.feature.properties.density = counts[l.feature.properties.name] || 0; }); map.invalidateSize(); }
             
-            // Chart Update (with grouping)
             if (categoryChart) { 
                 const catCounts = productData.reduce((a, p) => { if(p.kategori_1) a[p.kategori_1] = (a[p.kategori_1] || 0) + 1; return a; }, {}); 
                 const sortedCategories = Object.entries(catCounts).sort(([,a],[,b]) => b-a);
@@ -133,30 +130,32 @@
                 categoryChart.update(); 
             }
         }
-
-        // Table Update (now with pagination)
-        function updateFilteredTable() { 
+        
+        // UPGRADED: Render one page of the table
+        function renderTablePage() { 
             const tBody = document.getElementById('filteredTableBody');
             tBody.innerHTML = ''; 
             if (filteredProducts.length === 0) { tBody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-gray-500">Tidak ada data.</td></tr>`; return; } 
 
             const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-            const endIndex = startIndex + ITEMS_PER_PAGE;
-            const paginatedItems = filteredProducts.slice(startIndex, endIndex);
+            const paginatedItems = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
             paginatedItems.forEach(p => { 
                 const row = tBody.insertRow(); 
                 row.className = 'hover:bg-gray-50'; 
-                row.innerHTML = `<td class="px-6 py-4 text-sm">${p.nama_produk}</td><td class="px-6 py-4 text-sm text-gray-500">${p.perusahaan}</td>`; 
+                row.innerHTML = `<td class="px-6 py-4 text-sm">${p.nama_produk || ''}</td><td class="px-6 py-4 text-sm text-gray-500">${p.perusahaan || ''}</td>`; 
             }); 
         }
         
-        // NEW: Render Pagination Controls
+        // NEW: Render pagination controls
         function renderPagination() {
             const controls = document.getElementById('pagination-controls');
+            const summary = document.getElementById('pagination-summary');
             const totalItems = filteredProducts.length;
+
             if (totalItems <= ITEMS_PER_PAGE) {
                 controls.innerHTML = '';
+                summary.innerHTML = totalItems > 0 ? `Menampilkan ${totalItems.toLocaleString('id-ID')} produk` : '';
                 return;
             }
 
@@ -164,19 +163,13 @@
             const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
             const endIndex = Math.min(startIndex + ITEMS_PER_PAGE - 1, totalItems);
 
+            summary.innerHTML = `Menampilkan <span class="font-semibold">${startIndex.toLocaleString('id-ID')}</span>-<span class="font-semibold">${endIndex.toLocaleString('id-ID')}</span> dari <span class="font-semibold">${totalItems.toLocaleString('id-ID')}</span> Produk`;
+            
             controls.innerHTML = `
-                <span class="text-sm text-gray-700">
-                    Menampilkan <span class="font-semibold">${startIndex}</span> - <span class="font-semibold">${endIndex}</span> dari <span class="font-semibold">${totalItems}</span> Produk
-                </span>
                 <div class="inline-flex mt-2 xs:mt-0">
-                    <button id="prev-page-btn" class="pagination-btn px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-l hover:bg-gray-900">
-                        Sebelumnya
-                    </button>
-                    <button id="next-page-btn" class="pagination-btn px-4 py-2 text-sm font-medium text-white bg-gray-800 border-0 border-l border-gray-700 rounded-r hover:bg-gray-900">
-                        Berikutnya
-                    </button>
-                </div>
-            `;
+                    <button id="prev-page-btn" class="pagination-btn px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-l hover:bg-gray-900">Sebelumnya</button>
+                    <button id="next-page-btn" class="pagination-btn px-4 py-2 text-sm font-medium text-white bg-gray-800 border-0 border-l border-gray-700 rounded-r hover:bg-gray-900">Berikutnya</button>
+                </div>`;
 
             const prevBtn = document.getElementById('prev-page-btn');
             const nextBtn = document.getElementById('next-page-btn');
@@ -190,50 +183,108 @@
 
         function changePage(direction) {
             currentPage += direction;
-            updateFilteredTable();
+            renderTablePage();
             renderPagination();
         }
         
-        function runComparison() { /* ... kode sama seperti versi sebelumnya ... */ }
-
-        function applyAndRenderFilters() { 
+        // UPGRADED: Central function for filtering and rendering
+        function applyFiltersAndRender() { 
             let data = [...latestProducts]; 
-            const filters = { 
+            const filterValues = { 
                 provinsi: document.getElementById('filterProvinsi').value, 
                 kategori1: document.getElementById('filterKategori1').value, 
                 kategori2: document.getElementById('filterKategori2').value, 
                 produk: document.getElementById('filterProduk').value 
             };
-            if (filters.provinsi !== 'all') data = data.filter(p => p.provinsi === filters.provinsi); 
-            if (filters.kategori1 !== 'all') data = data.filter(p => p.kategori_1 === filters.kategori1); 
-            if (filters.kategori2 !== 'all') data = data.filter(p => p.kategori_2 === filters.kategori2); 
-            if (filters.produk !== 'all') data = data.filter(p => p.nama_produk === filters.produk); 
+            if (filterValues.provinsi !== 'all') data = data.filter(p => p.provinsi === filterValues.provinsi); 
+            if (filterValues.kategori1 !== 'all') data = data.filter(p => p.kategori_1 === filterValues.kategori1); 
+            if (filterValues.kategori2 !== 'all') data = data.filter(p => p.kategori_2 === filterValues.kategori2); 
+            if (filterValues.produk !== 'all') data = data.filter(p => p.nama_produk === filterValues.produk); 
             
             filteredProducts = data;
             currentPage = 1;
             
             updateDashboard(filteredProducts); 
-            updateFilteredTable();
+            renderTablePage();
             renderPagination();
         }
-        
-        // ... (sisa fungsi JavaScript lainnya tetap sama) ...
+
+        // --- All other functions from your working file ---
+        function runComparison() {
+            const select = document.getElementById('comparisonDate');
+            const selectedValue = select.value;
+            if (selectedValue === 'latest') return;
+            const [tanggal, balai, wilayah, paket] = selectedValue.split(';');
+            const log = { tanggal, balai, wilayah, paket_pekerjaan: paket };
+            if (!log || !log.tanggal) { alert('Event tidak valid.'); return; }
+            const days = parseInt(document.getElementById('comparisonDay').value);
+            const eventDateString = log.tanggal;
+            function addDaysAndFormat(dateString, days) { const date = new Date(dateString); date.setDate(date.getDate() + days); return date.toISOString().slice(0, 10); }
+            const endDateString = addDaysAndFormat(eventDateString, days);
+            const dataBefore = latestProducts.filter(p => p.provinsi === log.wilayah && (p.last_update || '').substring(0, 10) <= eventDateString);
+            const dataAfter = latestProducts.filter(p => p.provinsi === log.wilayah && (p.last_update || '').substring(0, 10) <= endDateString);
+            const beforeIds = new Set(dataBefore.map(p => `${p.nama_produk}::${p.perusahaan}`));
+            const newProducts = dataAfter.filter(p => !beforeIds.has(`${p.nama_produk}::${p.perusahaan}`));
+            document.getElementById('comparison-content').innerHTML = `<div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg mb-4"><p class="font-semibold text-blue-800">Analisis: ${log.balai}</p><p class="text-sm">Paket: "${log.paket_pekerjaan}"</p></div><p class="mb-2">Perbandingan kondisi pada <strong>${log.tanggal}</strong> dengan <strong>${days} hari setelahnya</strong>.</p><div class="grid grid-cols-3 gap-4"><div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold">Produk Awal</h4><p class="text-2xl">${dataBefore.length}</p></div><div class="p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold">Produk Akhir</h4><p class="text-2xl">${dataAfter.length}</p></div><div class="p-4 rounded-lg ${dataAfter.length >= dataBefore.length ? 'bg-green-100' : 'bg-red-100'}"><h4 class="font-semibold">Perubahan</h4><p class="text-2xl">${dataAfter.length - dataBefore.length >= 0 ? '+' : ''}${dataAfter.length - dataBefore.length}</p></div></div><div class="mt-4"><h4 class="font-semibold">Produk Baru (${newProducts.length}):</h4><ul class="list-disc pl-5 text-sm text-green-700">${newProducts.length > 0 ? newProducts.map(p => `<li>${p.nama_produk} <span class="text-gray-500">- ${p.perusahaan}</span></li>`).join('') : '<li>Tidak ada.</li>'}</ul></div>`;
+            openModal('analysisResultModal');
+        }
+        function populateSelect(el, opt, def) { const cur = el.value; el.innerHTML = `<option value="all">${def}</option>`; [...new Set(opt)].sort().forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; el.appendChild(op); }); if (el.querySelector(`option[value="${cur}"]`)) { el.value = cur; } else { el.value = 'all'; } }
+        function populateFilters(data, reset = false) { 
+            const filters = { provinsi: document.getElementById('filterProvinsi'), kategori1: document.getElementById('filterKategori1'), kategori2: document.getElementById('filterKategori2'), produk: document.getElementById('filterProduk') };
+            if (reset) Object.values(filters).forEach(s => s.value = 'all'); 
+            let fData = [...data]; 
+            populateSelect(filters.provinsi, ALL_PROVINCES, 'Semua Provinsi'); 
+            if (filters.provinsi.value !== 'all') fData = fData.filter(p => p.provinsi === filters.provinsi.value); 
+            populateSelect(filters.kategori1, fData.map(p => p.kategori_1).filter(Boolean), 'Semua Kategori 1'); 
+            if (filters.kategori1.value !== 'all') fData = fData.filter(p => p.kategori_1 === filters.kategori1.value); 
+            populateSelect(filters.kategori2, fData.map(p => p.kategori_2).filter(Boolean), 'Semua Kategori 2'); 
+            if (filters.kategori2.value !== 'all') fData = fData.filter(p => p.kategori_2 === filters.kategori2.value); 
+            populateSelect(filters.produk, fData.map(p => p.nama_produk).filter(Boolean), 'Semua Produk'); 
+        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showToast(message) { const t = document.getElementById('toast-notification'); t.textContent = message; t.style.opacity = '1'; t.style.transform = 'translateY(0)'; setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; }, 3000); }
+        function promptDeleteEvent(date) { const log = marketSoundingLog.find(l => l.tanggal.substring(0, 10) === date); if (!log) return; document.getElementById('deleteEventDetails').innerHTML = `<strong>${log.balai}</strong> - ${log.paket_pekerjaan} <br> (${date})`; document.getElementById('confirmDeleteBtn').dataset.deleteId = date; openModal('deleteConfirmationModal'); }
+        function deleteEvent() { alert(`Fungsi Hapus belum diimplementasikan di Apps Script.`); }
+        function populateHistoryTable(logs) { const tBody = document.getElementById('historyTableBody'); tBody.innerHTML = ''; if (!logs) return; logs.filter(log => log && log.tanggal).sort((a, b) => b.tanggal.localeCompare(a.tanggal)).forEach(log => { const dateOnly = log.tanggal.substring(0, 10); const row = tBody.insertRow(); row.innerHTML = `<td class="px-6 py-4 text-sm">${dateOnly}</td><td class="px-6 py-4 text-sm">${log.balai || ''}</td><td class="px-6 py-4 text-sm">${log.wilayah || ''}</td><td class="px-6 py-4 text-sm">${log.paket_pekerjaan || ''}</td><td class="px-6 py-4"><button onclick="promptDeleteEvent('${dateOnly}')" class="text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>`; }); }
+        function populateComparisonDropdown(logs) { const s = document.getElementById('comparisonDate'); s.innerHTML = '<option value="latest">Tampilkan Data Terkini</option>'; if (!logs) return; logs.filter(log => log && log.tanggal).sort((a, b) => b.tanggal.localeCompare(a.tanggal)).forEach(log => { const dateOnly = log.tanggal.substring(0, 10); const op = document.createElement('option'); op.value = `${dateOnly};${log.balai};${log.wilayah};${log.paket_pekerjaan}`; op.textContent = `${log.balai}: ${log.paket_pekerjaan} (${dateOnly})`; s.appendChild(op); }); }
+        async function handleFormSubmit(event) { event.preventDefault(); const submitBtn = document.getElementById('submit-btn'); submitBtn.disabled = true; submitBtn.textContent = 'Menyimpan...'; const formData = { balai: document.getElementById('balai').value, wilayah: document.getElementById('provinsi').value, paket_pekerjaan: document.getElementById('paket_pekerjaan').value, tanggal: document.getElementById('tanggal').value, }; try { await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) }); showToast('Data berhasil dikirim! Halaman akan dimuat ulang...'); closeModal('marketSoundingModal'); document.getElementById('marketSoundingForm').reset(); setTimeout(() => { location.reload(); }, 2000); } catch (error) { alert('Gagal mengirim data. Silakan coba lagi.'); } finally { submitBtn.disabled = false; submitBtn.textContent = 'Simpan'; } }
         
         async function main() {
+            document.body.insertAdjacentHTML('beforeend', `<div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center"><div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div><p class="mt-4 text-gray-600">Menyambungkan ke Spreadsheet...</p></div>`);
             try {
-                // ... fetch data ...
-                latestProducts = data.latestProducts || [];
-                // Initialize filteredProducts after latestProducts is set
-                filteredProducts = [...latestProducts]; 
-                
-                // ... sisa kode ...
-                
-                // Initial render
-                populateFilters(latestProducts, true);
-                applyAndRenderFilters();
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                if (data.error) throw new Error(`API Error: ${data.message}`);
 
-            } catch (error) { //...
-            } finally { //...
+                marketSoundingLog = data.marketSoundingLog || [];
+                latestProducts = data.latestProducts || [];
+                
+                initMap();
+                initChart(); 
+                
+                populateComparisonDropdown(marketSoundingLog);
+                const provSelect = document.getElementById('provinsi');
+                ALL_PROVINCES.forEach(p => { const op = document.createElement('option'); op.value = p; op.textContent = p; provSelect.appendChild(op); });
+                populateHistoryTable(marketSoundingLog);
+                
+                document.getElementById('marketSoundingForm').addEventListener('submit', handleFormSubmit);
+                document.getElementById('confirmDeleteBtn').addEventListener('click', deleteEvent);
+                document.getElementById('comparisonDate').addEventListener('change', e => { if (e.target.value === 'latest') { applyFiltersAndRender(); }});
+                
+                document.querySelectorAll('select[id^="filter"]').forEach(sel => sel.addEventListener('change', applyFiltersAndRender));
+                
+                // Initial render with all data
+                populateFilters(latestProducts, true);
+                applyFiltersAndRender();
+
+            } catch (error) {
+                console.error("Gagal memuat data:", error);
+                document.getElementById('stats-cards').innerHTML = `<div class="col-span-full bg-red-100 text-red-700 p-4 rounded-lg">Gagal terhubung. ${error.message}</div>`;
+            } finally {
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.remove();
             }
         }
         
